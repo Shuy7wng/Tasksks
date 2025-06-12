@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faDashboard, faBarsProgress, faLayerGroup } from "@fortawesome/free-solid-svg-icons";
+import { faGauge, faBarsProgress, faLayerGroup } from "@fortawesome/free-solid-svg-icons";
 
 interface MenuItem {
   name: string;
@@ -9,10 +9,10 @@ interface MenuItem {
 }
 
 function Sidebar() {
-  const [menuItems, setMenuItems] = React.useState([
-    { name: "Dashboard", isSelected: true },
-    { name: "Projects", isSelected: false },
-    { name: "Categories", isSelected: false },
+  const [menuItems, setMenuItems] = React.useState<MenuItem[]>([
+    { name: "Dashboard", icon: faGauge, isSelected: true },
+    { name: "Projects", icon: faBarsProgress, isSelected: false },
+    { name: "Categories", icon: faLayerGroup, isSelected: false },
   ]);
 
   function updateItemSelection(indexItem: number) {
@@ -27,9 +27,8 @@ function Sidebar() {
     <div className="flex flex-col w-[330px] h-screen p-6 border border-gray-200 montserrat gap-6">
       {/* Logo */}
       <div className="flex gap-2 items-center">
-        {/* immagine o icona */}
-         <img
-          src="/gatto.png"      
+        <img
+          src="/gatto.png"
           alt="Gatto"
           className="h-[50px]"
           style={{ objectFit: "contain" }}
@@ -38,7 +37,7 @@ function Sidebar() {
       </div>
 
       {/* Menu */}
-      <nav className="flex flex-col gap-3">
+      <nav className="flex flex-col gap-4 pt-30">
         {menuItems.map((item, index) => (
           <button
             key={index}
@@ -47,10 +46,16 @@ function Sidebar() {
               ${
                 item.isSelected
                   ? "bg-[#006fb4] text-white"
-                  : "bg-transparent text-black hover:border-[#006fb4]"
+                  : "bg-transparent"
               }
             `}
+            style={{ color: item.isSelected ? 'white' : '#006fb4' }}
           >
+            <FontAwesomeIcon
+              icon={item.icon}
+              className="mr-2"
+              style={{ color: item.isSelected ? 'white' : '#006fb4' }}
+            />
             {item.name}
           </button>
         ))}
