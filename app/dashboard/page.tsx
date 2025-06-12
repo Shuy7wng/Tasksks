@@ -10,11 +10,10 @@ export default function Page() {
 
     return (
         <div
-            className={`poppins flex w-full h-screen ${isDark ? "dark-mode" : "light-mode"}`}
+            className={`montserrat flex w-full h-screen ${isDark ? "dark-mode" : "light-mode"}`}
         >
             <Sidebar />
-            {/* <Dashboard /> */}
+            <Dashboard /> 
         </div>
     );
 }
-// 27

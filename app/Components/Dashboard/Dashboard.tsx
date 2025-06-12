@@ -7,6 +7,10 @@ import{faAngleDown, faSearch, faClose,} from "@fortawesome/free-solid-svg-icons"
 function Dashboard(){
     return(
         <div className="montserrat w-full">
+            
+      <main className="flex-1 p-6">
+        <h2>Contenuto principale</h2>
+      </main>
             {/* <TopBar/> */}
         </div>
     )

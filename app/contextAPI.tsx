@@ -1,17 +1,18 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+"use client";
 
-// 1. Definizione del tipo per il contesto
-type ContextType = {
-  isDark: boolean;
-  setIsDark: (value: boolean) => void;
-};
+import { ReactNode, createContext, useContext, useState} from "react";
 
-// 2. Creazione del contesto con valore iniziale
-const GlobalContext = createContext<ContextType | undefined>(undefined);
+interface GlobalContext{
+  isDark:boolean;
+  setIsDark:(isDark:boolean)=>void;
+}
+const GlobalContext = createContext<GlobalContext>({
+  isDark:false,
+  setIsDark:()=>{},
+});
 
-// 3. Provider del contesto
 export function GlobalContextProvider({ children }: { children: ReactNode }) {
-  const [isDark, setIsDark] = useState<boolean>(false); // Stato per dark/light mode
+  const [isDark, setIsDark] = useState<boolean>(false);
 
   return (
     <GlobalContext.Provider value={{ isDark, setIsDark }}>
@@ -20,11 +21,12 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// 4. Hook personalizzato per usare il contesto0
 export function useGlobalContextProvider() {
   const context = useContext(GlobalContext);
   if (!context) {
-    throw new Error("useGlobalContextProvider must be used within a GlobalContextProvider");
+    throw new Error(
+      "useGlobalContextProvider must be used within a GlobalContextProvider"
+    );
   }
   return context;
 }

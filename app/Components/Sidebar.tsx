@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGauge, faBarsProgress, faLayerGroup } from "@fortawesome/free-solid-svg-icons";
+import DarkMode from "../Components/Darkmode";
 
 interface MenuItem {
   name: string;
@@ -38,34 +39,32 @@ function Sidebar() {
 
       {/* Menu */}
       <nav className="flex flex-col gap-4 pt-30">
-        {menuItems.map((item, index) => (
-          <button
-            key={index}
-            onClick={() => updateItemSelection(index)}
-            className={`text-left p-3 rounded-md cursor-pointer border border-gray-200
-              ${
-                item.isSelected
+        {
+          menuItems.map((item, index) => (
+            <button
+              key={index}
+              onClick={() => updateItemSelection(index)}
+              className={`text-left p-3 rounded-md cursor-pointer border border-gray-200
+              ${item.isSelected
                   ? "bg-[#006fb4] text-white"
                   : "bg-transparent"
-              }
+                }
             `}
-            style={{ color: item.isSelected ? 'white' : '#006fb4' }}
-          >
-            <FontAwesomeIcon
-              icon={item.icon}
-              className="mr-2"
               style={{ color: item.isSelected ? 'white' : '#006fb4' }}
-            />
-            {item.name}
-          </button>
-        ))}
+            >
+              <FontAwesomeIcon
+                icon={item.icon}
+                className="mr-2"
+                style={{ color: item.isSelected ? 'white' : '#006fb4' }}
+              />
+              {item.name}
+            </button>
+          ))}
       </nav>
 
       {/* Dark Mode */}
-      <div className="mt-auto border p-3 text-center cursor-pointer select-none">
-        Dark Mode
+      <DarkMode />
       </div>
-    </div>
   );
 }
 
