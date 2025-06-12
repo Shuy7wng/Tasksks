@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@media(prefers-color-scheme: dark){
+  :root {
+  --foreground-rgb:255,255,255;
+  --background-start-rgb:0,0,0;
+  --background-end-rbg: 0,0,0;
+}
+}
+.montserrat {
+  font-family: var(--font-montserrat);
+}
+.montserrat-regular {
+  font-weight: 400;
+}
+.montserrat-light {
+  font-weight: 300;
+}
+.montserrat-thin {
+  font-weight: 100;
+}
