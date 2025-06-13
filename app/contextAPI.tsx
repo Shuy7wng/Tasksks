@@ -1,18 +1,28 @@
 "use client";
 
-import { ReactNode, createContext, useContext, useState} from "react";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 
-interface GlobalContext{
-  isDark:boolean;
-  setIsDark:(isDark:boolean)=>void;
+interface GlobalContextType {
+  isDark: boolean;
+  setIsDark: (value: boolean) => void;
 }
-const GlobalContext = createContext<GlobalContext>({
-  isDark:false,
-  setIsDark:()=>{},
+
+const GlobalContext = createContext<GlobalContextType>({
+  isDark: false,
+  setIsDark: () => {},
 });
 
 export function GlobalContextProvider({ children }: { children: ReactNode }) {
-  const [isDark, setIsDark] = useState<boolean>(false);
+  const [isDark, setIsDark] = useState(false);
+
+  // Aggiunge / rimuove la classe "dark" sull'html per tailwind
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [isDark]);
 
   return (
     <GlobalContext.Provider value={{ isDark, setIsDark }}>
@@ -22,11 +32,5 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
 }
 
 export function useGlobalContextProvider() {
-  const context = useContext(GlobalContext);
-  if (!context) {
-    throw new Error(
-      "useGlobalContextProvider must be used within a GlobalContextProvider"
-    );
-  }
-  return context;
+  return useContext(GlobalContext);
 }

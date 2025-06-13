@@ -4,30 +4,46 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSun, faMoon } from "@fortawesome/free-regular-svg-icons";
 
 export default function DarkMode() {
-    const { isDark, setIsDark } = useGlobalContextProvider();
+  const { isDark, setIsDark } = useGlobalContextProvider();
 
-    console.log(isDark);
+  const toggleTheme = () => {
+    setIsDark(!isDark);
+  };
 
-    return (
-        <div>
-            <div className={`${isDark ? "bg-[#006fb4]" : "border bg-transparent"} rounded-3xl border-gray-300 h-[33px] w-[59px] flex relative`}>
-                <div 
-                    onClick={() => setIsDark(false)}
-                    className="bg-red-500 h-full w-1/2 opacity-0"
-                ></div>
-                <div 
-                    onClick={() => setIsDark(true)}
-                    className="bg-blue-500 h-full w-1/2 opacity-0"
-                ></div>
-                <div className={`rounded-full h-[23px] w-[22px] top-[5px] ${isDark ? "bg-white translate-x-[34px]" : "bg-slate-300 translate-x-[4px]"} absolute transition-all flex items-center justify-center`}>
-                    <FontAwesomeIcon
-                        className={isDark ? "text-[#006fb4]" : "text-white"}
-                        height={12}
-                        width={12}
-                        icon={isDark ? faMoon : faSun}
-                    />
-                </div>
-            </div>
+  return (
+    <div onClick={toggleTheme} className="cursor-pointer">
+      <div
+        className={`
+          relative rounded-3xl h-[33px] w-[59px] flex items-center
+          transition-colors duration-300 ease-in-out
+          ${isDark ? "bg-[#006fb4]" : "bg-yellow-200"}
+        `}
+      >
+        <div
+          className={`
+            rounded-full h-[23px] w-[23px] absolute top-[5px]
+            transition-transform duration-300 ease-in-out
+            ${isDark ? "translate-x-[34px] bg-white" : "translate-x-[4px] bg-white"}
+            flex items-center justify-center
+          `}
+        >
+          {isDark ? (
+            <FontAwesomeIcon
+              className="text-[#006fb4]"
+              height={12}
+              width={12}
+              icon={faMoon}
+            />
+          ) : (
+            <FontAwesomeIcon
+              className="text-yellow-600"
+              height={12}
+              width={12}
+              icon={faSun}
+            />
+          )}
         </div>
-    );
+      </div>
+    </div>
+  );
 }

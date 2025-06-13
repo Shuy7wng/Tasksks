@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Montserrat } from "next/font/google";
 import "./globals.css";
+import { GlobalContextProvider } from "./contextAPI";
 
 const inter = Inter({ subsets: ["latin"] });
 const montserrat = Montserrat({
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
   title: "tasksks",
   description: "do task :)",
   icons: "/icon.ico",
-};
+}
 
 export default function RootLayout({
   children,
@@ -21,8 +22,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ita">
-      <body className={montserrat.variable}>{children}</body>
+    <html lang="ita" className="dark"> 
+      <body className={`${montserrat.variable} transition-colors duration-300`}>
+        <GlobalContextProvider>
+          {children}
+        </GlobalContextProvider>
+      </body>
     </html>
   );
 }
