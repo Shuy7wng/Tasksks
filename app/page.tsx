@@ -1,6 +1,5 @@
 "use client";
-
-import Dashboard from "./Components/Dashboard/Dashboard";
+import Dashboard from "./Components/TopBar/Dashboard";
 import Sidebar from "./Components/Sidebar";
 import { useGlobalContextProvider } from "./contextAPI";
 

@@ -34,7 +34,7 @@ function Sidebar() {
       `}
     >
       {/* Logo */}
-      <div className="flex gap-2 items-center">
+      <div className="flex gap-2 items-center justify-center">
         <img
           src={isDark ? "/gattino_bianco.png" : "/gattino_nero.png"}
           alt="Gatto"
@@ -46,7 +46,7 @@ function Sidebar() {
         </span>
       </div >
       {/* Menu */}
-      <nav className="flex flex-col gap-4 pt-30 pb-50 ">
+      <nav className="flex flex-col gap-4 pt-30 pb-80 ">
         {menuItems.map((item, index) => (
           <button
             key={index}
