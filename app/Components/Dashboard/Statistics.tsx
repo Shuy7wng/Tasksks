@@ -32,7 +32,7 @@ function Card({ singleCard }: { singleCard: statisticsCard }) {
   const { text, numbers, icon } = singleCard;
 
   return (
-    <div className="flex items-center justify-between bg-[#006fb4] text-white p-4 px-6 rounded-lg shadow w-[260px]">
+    <div className="flex items-center justify-between text-white p-4 px-6 rounded-lg shadow w-[260px] bg-gradient-to-tr from-[#0893c9] to-sky-400 ">
       {/* Info */}
       <div className="flex flex-col">
         <span className="text-2xl font-bold">{numbers}</span>
@@ -46,3 +46,5 @@ function Card({ singleCard }: { singleCard: statisticsCard }) {
     </div>
   );
 }
+
+

@@ -12,7 +12,7 @@ export default function TopBar() {
   return (
 
     <div className={`p-8 pt-12 flex items-center justify-between ${isDark
-      ? "bg-blackColor"
+      ? "bg-[rgba(22, 29, 58, 0.8)]"
       : "bg-white"
       }`}>
 

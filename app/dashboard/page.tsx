@@ -2,7 +2,7 @@
 
 import React from "react";
 import Sidebar from '../Components/Sidebar';
-import Dashboard from "../Components/Dashboard/Dashboard";
+import Dashboard from "../Components/TopBar/Dashboard";
 import { useGlobalContextProvider } from '../contextAPI';
 
 export default function Page() {

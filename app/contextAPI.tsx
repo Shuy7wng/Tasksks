@@ -4,16 +4,25 @@ import { createContext, useContext, useState, ReactNode, useEffect } from "react
 
 interface GlobalContextType {
   isDark: boolean;
-  setIsDark: (value: boolean) => void;
+  setIsDark: (isDark: boolean) => void;
+  sideBar:{
+    openSideBar:boolean;
+    setOpenSideBar:(openSideBar:boolean)=> void;
+  }
 }
 
 const GlobalContext = createContext<GlobalContextType>({
   isDark: false,
   setIsDark: () => {},
+  sideBar:{
+    openSideBar: false,
+    setOpenSideBar:()=>{},
+  }
 });
 
 export function GlobalContextProvider({ children }: { children: ReactNode }) {
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState<boolean>(false);
+  const [openSideBar, setOpenSideBar] = useState<boolean>(false);
 
   // Aggiunge / rimuove la classe "dark" sull'html per tailwind
   useEffect(() => {
@@ -25,9 +34,14 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
   }, [isDark]);
 
   return (
-    <GlobalContext.Provider value={{ isDark, setIsDark }}>
-      {children}
-    </GlobalContext.Provider>
+    <GlobalContext.Provider 
+  value={{ 
+    isDark, 
+    setIsDark, 
+    sideBar: { openSideBar, setOpenSideBar } 
+  }}>
+  {children}
+</GlobalContext.Provider>
   );
 }
 
