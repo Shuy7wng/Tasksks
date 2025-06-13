@@ -41,28 +41,27 @@ function Sidebar() {
           className="h-[50px]"
           style={{ objectFit: "contain" }}
         />
-       <span className="text-2xl font-bold">
-  Tasksks
-</span>
-
-      </div>
-
+        <span className="text-2xl font-bold">
+          Tasksks
+        </span>
+      </div >
       {/* Menu */}
-      <nav className="flex flex-col gap-4 pt-30 pb-50">
+      <nav className="flex flex-col gap-4 pt-30 pb-50 ">
         {menuItems.map((item, index) => (
           <button
             key={index}
             onClick={() => updateItemSelection(index)}
-            className={`text-left p-3 rounded-md cursor-pointer border border-gray-200
-              ${item.isSelected ? "bg-[#006fb4] text-white" : "bg-transparent"}`}
+            className={`p-3 rounded-md cursor-pointer flex items-center justify-center gap-2
+    ${item.isSelected ? "bg-[#006fb4] text-white" : "bg-transparent"}`}
             style={{ color: item.isSelected ? "white" : "#006fb4" }}
           >
             <FontAwesomeIcon
-              className={`${item.isSelected ? "text-white" : "text-#006fb4"}`}
               icon={item.icon}
+              className={item.isSelected ? "text-white" : "text-[#006fb4]"}
             />
-            {item.name}
+            <span>{item.name}</span>
           </button>
+
         ))}
       </nav>
 

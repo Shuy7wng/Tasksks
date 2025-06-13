@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { useGlobalContextProvider } from "../contextAPI";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
