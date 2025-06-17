@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { useGlobalContextProvider } from "@/app/contextAPI";
-import Statistics from "./MainArea/Statistics";
-import RightSideBar from "./MainArea/RightSideBar";
-
+import Statistics from "./Statistics";
 useGlobalContextProvider;
 
 function MainArea(){
@@ -14,7 +12,7 @@ function MainArea(){
             <div className = "w-9/12">
         <Statistics/>
             </div>
-            <RightSideBar/>
+            {/*<RightSideBar/> In caso qualcuno volesse una colonna a destra?? */}
         </div>
     )
 }

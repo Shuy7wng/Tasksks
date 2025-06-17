@@ -1,50 +1,79 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import {
+  faDashboard,
+  faBarsProgress,
+  faLayerGroup,
+} from "@fortawesome/free-solid-svg-icons";
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+  Dispatch,
+  SetStateAction,
+} from "react";
+
+// Tipi
+interface MenuItem {
+  name: string;
+  icon: any;
+  isSelected: boolean;
+}
 
 interface GlobalContextType {
   isDark: boolean;
   setIsDark: (isDark: boolean) => void;
-  sideBar:{
-    openSideBar:boolean;
-    setOpenSideBar:(openSideBar:boolean)=> void;
-  }
+  sideBar: {
+    openSideBar: boolean;
+    setOpenSideBar: (open: boolean) => void;
+  };
+  dashboardItems: {
+    menuItems: MenuItem[];
+    setMenuItems: Dispatch<SetStateAction<MenuItem[]>>;
+  };
 }
 
-const GlobalContext = createContext<GlobalContextType>({
-  isDark: false,
-  setIsDark: () => {},
-  sideBar:{
-    openSideBar: false,
-    setOpenSideBar:()=>{},
-  }
-});
+// Contesto inizialmente undefined
+const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 
+// Provider
 export function GlobalContextProvider({ children }: { children: ReactNode }) {
   const [isDark, setIsDark] = useState<boolean>(false);
   const [openSideBar, setOpenSideBar] = useState<boolean>(false);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([
+    { name: "Dashboard", icon: faDashboard, isSelected: true },
+    { name: "Projects", icon: faBarsProgress, isSelected: false },
+    { name: "Categories", icon: faLayerGroup, isSelected: false },
+  ]);
 
-  // Aggiunge / rimuove la classe "dark" sull'html per tailwind
+  // Aggiorna classe dark
   useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
+    document.documentElement.classList.toggle("dark", isDark);
   }, [isDark]);
 
   return (
-    <GlobalContext.Provider 
-  value={{ 
-    isDark, 
-    setIsDark, 
-    sideBar: { openSideBar, setOpenSideBar } 
-  }}>
-  {children}
-</GlobalContext.Provider>
+    <GlobalContext.Provider
+      value={{
+        isDark,
+        setIsDark,
+        sideBar: { openSideBar, setOpenSideBar },
+        dashboardItems: { menuItems, setMenuItems },
+      }}
+    >
+      {children}
+    </GlobalContext.Provider>
   );
 }
 
+// Hook personalizzato
 export function useGlobalContextProvider() {
-  return useContext(GlobalContext);
+  const context = useContext(GlobalContext);
+  if (!context) {
+    throw new Error(
+      "useGlobalContextProvider deve essere usato dentro <GlobalContextProvider>"
+    );
+  }
+  return context;
 }

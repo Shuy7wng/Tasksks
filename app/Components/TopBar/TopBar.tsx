@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faClose, faBars } from "@fortawesome/free-solid-svg-icons";
-import { useGlobalContextProvider } from "../../contextAPI";
+import { useGlobalContextProvider } from "@/app/contextAPI";
 import SearchBar from "./SearchBar";
 
 
@@ -12,8 +12,7 @@ export default function TopBar() {
   return (
 
     <div className={`p-8 pt-12 flex items-center justify-between ${isDark
-      ? "bg-[rgba(22, 29, 58, 0.8)]"
-      : "bg-white"
+      ? "blackColor" : "whiteDirty"
       }`}>
 
       <div className="flex gap-7 items-center">
