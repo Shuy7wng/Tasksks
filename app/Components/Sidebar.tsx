@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGauge, faBarsProgress, faLayerGroup } from "@fortawesome/free-solid-svg-icons";
 import DarkMode from "../Components/Darkmode";
 import { useGlobalContextProvider } from "@/app/contextAPI";
 

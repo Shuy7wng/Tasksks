@@ -43,9 +43,9 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
   const [isDark, setIsDark] = useState<boolean>(false);
   const [openSideBar, setOpenSideBar] = useState<boolean>(false);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([
-    { name: "Dashboard", icon: faDashboard, isSelected: true },
-    { name: "Projects", icon: faBarsProgress, isSelected: false },
-    { name: "Categories", icon: faLayerGroup, isSelected: false },
+    { name: "Home", icon: faDashboard, isSelected: true },
+    { name: "Progetti", icon: faBarsProgress, isSelected: false },
+    { name: "Categorie", icon: faLayerGroup, isSelected: false },
   ]);
 
   // Aggiorna classe dark
