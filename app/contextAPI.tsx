@@ -32,6 +32,18 @@ interface GlobalContextType {
     menuItems: MenuItem[];
     setMenuItems: Dispatch<SetStateAction<MenuItem[]>>;
   };
+  projectWindow: {
+    openNewProjectBox: boolean,
+    setOpenNewProjectBox: (openNewProjectBox: boolean) => void;
+  };
+  iconBox: {
+    openIconBox: boolean;
+    setOpenIconBox: (openIconBox: boolean) => void;
+  };
+  dropDown:{
+    openDropDown: boolean;
+    setOpenDropDown: (openDropDown: boolean) => void;
+  };
 }
 
 // Contesto inizialmente undefined
@@ -46,11 +58,28 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     { name: "Progetti", icon: faBarsProgress, isSelected: false },
     { name: "Categorie", icon: faLayerGroup, isSelected: false },
   ]);
-
+  const [openNewProjectBox, setOpenNewProjectBox] = useState(false);
+  const [openIconBox, setOpenIconBox] = useState(false);
+  const [openDropDown, setOpenDropDown] = useState(false);
+  
   // Aggiorna classe dark
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
   }, [isDark]);
+
+  useEffect(() => {
+    if (openNewProjectBox) {
+      setOpenNewProjectBox(false);
+    }
+  }, [menuItems]);
+
+  useEffect(() => {
+    if (openNewProjectBox || openIconBox|| openDropDown){
+      setOpenNewProjectBox(false);
+      setOpenIconBox(false);
+      setOpenDropDown(false);
+    }
+  })
 
   return (
     <GlobalContext.Provider
@@ -59,6 +88,9 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
         setIsDark,
         sideBar: { openSideBar, setOpenSideBar },
         dashboardItems: { menuItems, setMenuItems },
+        projectWindow: { openNewProjectBox, setOpenNewProjectBox },
+        iconBox: {openIconBox,setOpenIconBox},
+        dropDown:{openDropDown, setOpenDropDown},
       }}
     >
       {children}

@@ -10,7 +10,7 @@ export default function LatestProjects() {
     return (
         <div
             className={`rounded-xl p-6 flex flex-col items-center gap-4 shadow-2xl
-        ${isDark ? "bg-[#161d3a]" : "whiteDirty"}`}>
+        ${isDark ? "bg-[#161d3a]" : "bg-white"}`}>
 
             <span className={`font-semibold text-center text-lg ${isDark ? "text-white" : "text-gray-900"}`}>
                 Progetti

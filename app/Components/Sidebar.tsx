@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import DarkMode from "../Components/Darkmode";
 import { useGlobalContextProvider } from "@/app/contextAPI";
@@ -9,9 +9,16 @@ function Sidebar() {
   const { openSideBar, setOpenSideBar } = sideBar;
   const sideBarRef = useRef<HTMLDivElement>(null);
 
+  // Stato per larghezza reale sidebar (dinamica)
+  const [sidebarWidth, setSidebarWidth] = useState(280);
+
   useEffect(() => {
     function handleResize() {
-      setOpenSideBar(false)
+      setOpenSideBar(false);
+      // aggiorna larghezza sidebar
+      if (sideBarRef.current) {
+        setSidebarWidth(sideBarRef.current.offsetWidth);
+      }
     }
     function handleOutsideClick(event: MouseEvent) {
       if (
@@ -21,6 +28,11 @@ function Sidebar() {
       }
     }
 
+    // imposta larghezza sidebar iniziale
+    if (sideBarRef.current) {
+      setSidebarWidth(sideBarRef.current.offsetWidth);
+    }
+
     window.addEventListener("resize", handleResize);
     document.addEventListener("click", handleOutsideClick);
 
@@ -28,12 +40,11 @@ function Sidebar() {
       window.removeEventListener("resize", handleResize);
       document.removeEventListener("click", handleOutsideClick);
     };
-  }, [openSideBar]);
-  console.log(openSideBar);
+  }, [openSideBar, setOpenSideBar]);
 
   function updateItemSelection(indexItem: number) {
     const copyMenuItems = menuItems.map((item, index) => {
-      if (indexItem == index) {
+      if (indexItem === index) {
         return { ...item, isSelected: true };
       }
       return { ...item, isSelected: false };
@@ -43,61 +54,77 @@ function Sidebar() {
   }
 
   return (
-    <div
-      ref={sideBarRef}
-      className={`${openSideBar ? "flex absolute h-full w-[280px] " : "hidden"}
-      montserrat z-30 shadow-2xl w-full max-w-[330px] h-screen p-6 pt-12 md:flex flex-col gap-32 transition-colors 
-        ${isDark ? "bg-blackColor" :
-          "bg-white"}`}
-    >
-
-      {/* Logo */}
-      <div className="flex gap-2 items-center justify-center mb-6">
-        <img
-          src={isDark ? "/gattino_bianco.png" : "/gattino_nero.png"}
-          alt="Gatto"
-          className="h-[50px]"
-          style={{ objectFit: "contain" }}
+    <>
+      {/* Overlay che oscura solo la parte a destra della sidebar, usando larghezza dinamica */}
+      {openSideBar && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: sidebarWidth,
+            width: `calc(100vw - ${sidebarWidth}px)`,
+            height: "100vh",
+            backgroundColor: isDark ? "rgba(14, 19, 36, 0.3)" : "rgba(0,0,0,0.15)",
+            zIndex: 30,
+            pointerEvents: "none",
+          }}
         />
-        <span className="text-2xl font-bold">Tasksks</span>
+      )}
+
+      <div
+        ref={sideBarRef}
+        className={`${openSideBar ? "flex absolute h-full w-[280px]" : "hidden"}
+        montserrat z-40 shadow-xl w-full max-w-[330px] h-screen p-6 pt-12 md:flex flex-col gap-32 transition-colors 
+          ${isDark ? "bg-[#0e1324]" : "bg-white"}`}
+      >
+        {/* Logo */}
+        <div className="flex gap-2 items-center justify-center mb-6">
+          <img
+            src={isDark ? "/gattino_bianco.png" : "/gattino_nero.png"}
+            alt="Gatto"
+            className="h-[50px]"
+            style={{ objectFit: "contain" }}
+          />
+          <span className="text-2xl font-bold">Tasksks</span>
+        </div>
+
+        {/* Menu */}
+        <nav className="flex flex-col gap-4 flex-grow">
+          {menuItems.map((item, index) => (
+            <button
+              key={index}
+              onClick={() => updateItemSelection(index)}
+              className={`p-3 rounded-md cursor-pointer flex items-center justify-center gap-2
+              ${
+                item.isSelected
+                  ? isDark
+                    ? "text-white border border-[#0893c9]"
+                    : "text-white"
+                  : "bg-transparent"
+              }`}
+              style={
+                item.isSelected
+                  ? {
+                      backgroundImage: "linear-gradient(to top,#2c67f2 , #62cff4)",
+                    }
+                  : {}
+              }
+            >
+              <FontAwesomeIcon
+                icon={item.icon}
+                className={item.isSelected ? "text-white" : "text-[#006fb4]"}
+              />
+              <span>{item.name}</span>
+            </button>
+          ))}
+        </nav>
+
+        {/* Toggle in fondo */}
+        <div className="mt-auto flex justify-center pt-6">
+          <DarkMode />
+        </div>
       </div>
-
-      {/* Menu */}
-      <nav className="flex flex-col gap-4 flex-grow">
-        {menuItems.map((item, index) => (
-          <button
-            key={index}
-            onClick={() => updateItemSelection(index)}
-            className={`p-3 rounded-md cursor-pointer flex items-center justify-center gap-2
-    ${item.isSelected ? (
-                isDark
-                  ? "text-white border border-[#0893c9]"
-                  : "text-white"
-              ) : "bg-transparent"}  
-  `}
-            style={
-              item.isSelected
-                ? {
-                  backgroundImage: "linear-gradient(to top,#2c67f2 , #62cff4)",
-                }
-                : {}
-            }
-          >
-            <FontAwesomeIcon
-              icon={item.icon}
-              className={item.isSelected ? "text-white" : "text-[#006fb4]"}
-            />
-            <span>{item.name}</span>
-          </button>
-        ))}
-
-      </nav>
-
-      {/* Toggle in fondo */}
-      <div className="mt-auto flex justify-center pt-6">
-        <DarkMode />
-      </div>
-    </div>
+    </>
   );
 }
 

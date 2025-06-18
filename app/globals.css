@@ -1,7 +1,7 @@
 @import "tailwindcss";
 :root {
   --background-start-rgb: 241,219,220;
-  --background-end-rbg:255,255,255;
+  --background-end-rgb:255,255,255;
   --mainColor: #006fb4;
 }
 @media(prefers-color-scheme: dark){
@@ -23,7 +23,7 @@ body {
   color:black
 }
 .dark-mode{
-  background-color: rgb (24,31,57);
+  background-color: #161d3a;
   color:white
 }
 .montserrat {

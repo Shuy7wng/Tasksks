@@ -1,6 +1,13 @@
 import React from "react";
+import CategorieTopBar from "./CategoriesTopBar";
+import CategoriesArea from "./CategoriesArea";
 
 function Categories(){
-    return<div className="h-[1000px] w-full bg-slate-50">Categories</div>;
+    return (
+        <div className={`h-[1000px] w-full`}>
+            <CategorieTopBar />
+            <CategoriesArea />
+        </div>
+    );
 }
 export default Categories;

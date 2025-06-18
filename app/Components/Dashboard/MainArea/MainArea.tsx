@@ -10,7 +10,7 @@ function MainArea() {
   return (
     <div
       className={`
-    ${isDark ? "bg-blackColor" : "bg-slate-50"}  flex gap-3 w-full min-h-screen 
+    ${isDark ? "bg-[#161d3a]" : "bg-slate-50"}  flex gap-3 w-full min-h-screen 
     transition-colors duration-300  overflow-hidden
   `}
     >

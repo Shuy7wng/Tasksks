@@ -1,13 +1,12 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ["./app/**/*.{js,ts,jsx,tsx}"],
-  darkMode: 'class', // molto importante
+  darkMode: 'class', 
   theme: {
-    extend: {},
     extend: {
       colors: {
         mainColor: "rgb(0, 111, 180)", 
-        blackBack: "rgba(22, 29, 58, 0.8)",
+        blackColor: "#161d3a",
         whiteColor: "rgba(243, 243, 243, 0.66)",
       },
     },

@@ -35,10 +35,10 @@ export default function Page() {
   }
 
   return (
-    <div className={`montserrat flex w-full h-auto relative ${isDark ? "bg-gray-900 text-white" : "bg-white text-gray-900"}`}>
+    <div className={`montserrat flex w-full h-auto relative ${isDark ? "bg-[#161d3a] text-white" : "bg-white text-gray-900"}`}>
       <Sidebar />
       {selectedComponent}
-      <div className={`${openSideBar ? "block" : "hidden"} w-full h-full fixed bg-black z-9 opacity-20`}></div>
+      <div className={`${openSideBar ? "block" : "hidden"} w-full h-full fixed "bg-[#161d3a] z-9 opacity-20`}></div>
     </div>
   );
 }

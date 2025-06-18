@@ -20,8 +20,8 @@ export default function SearchBar() {
         width={16}
         className={`${isDark ? "text-white" : "text-gray-500"}`}
       />
-      <input className={`outline-none text-sm font-light w-full ${
-          isDark ? "bg-blackColor text-white" : "bg-white text-black"}`}
+      <input className={`outline-none text-sm w-full ${
+          isDark ? " text-white" : " text-black"}`}
         ref={inputRef}
         placeholder="Cerca..."
         
