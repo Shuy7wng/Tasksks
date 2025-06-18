@@ -3,12 +3,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import DarkMode from "../Components/Darkmode";
 import { useGlobalContextProvider } from "@/app/contextAPI";
 
-interface MenuItem {
-  name: string;
-  icon: any;
-  isSelected: boolean;
-}
-
 function Sidebar() {
   const { isDark, sideBar, dashboardItems } = useGlobalContextProvider();
   const { menuItems, setMenuItems } = dashboardItems;
@@ -52,8 +46,8 @@ function Sidebar() {
     <div
       ref={sideBarRef}
       className={`${openSideBar ? "flex absolute h-full w-[280px] " : "hidden"}
-      montserrat z-30 shadow-xl w-full max-w-[330px] h-screen p-6 pt-12 md:flex flex-col gap-32
-        ${isDark ? "bg-[#161d3a]" :
+      montserrat z-30 shadow-2xl w-full max-w-[330px] h-screen p-6 pt-12 md:flex flex-col gap-32 transition-colors 
+        ${isDark ? "bg-blackColor" :
           "bg-white"}`}
     >
 

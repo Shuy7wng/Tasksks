@@ -6,8 +6,9 @@ function RightSideBar() {
   const { isDark } = useGlobalContextProvider();
 
   return (
-    <div className="w-3/12 px-6 flex flex-col gap-6 ml-auto">
-      {/* Latest Projects */}
+    <div className={`w-full lg:w-[320px] rounded-2xl shadow-2xl transition-colors 
+      ${isDark ? "bg-blackColor" : "bg-white"}`}>
+      
       <LatestProjects />
     </div>
   );

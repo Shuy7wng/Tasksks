@@ -15,7 +15,6 @@ import {
   SetStateAction,
 } from "react";
 
-// Tipi
 interface MenuItem {
   name: string;
   icon: any;

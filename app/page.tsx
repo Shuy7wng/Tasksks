@@ -29,22 +29,16 @@ export default function Page() {
     case "Categorie":
       selectedComponent = <Categories />;
       break;
-
     default:
+      selectedComponent = <div className="p-10">No section selected</div>;
       break;
   }
 
   return (
-    <div className={`flex min-h-screen montserrat ${isDark ? "bg-gray-900 text-white" : "bg-white text-gray-900"}`}>
-      {/* Sidebar con larghezza fissa/responsiva */}
-      <div className="w-full max-w-[330px] flex-shrink-0">
-        <Sidebar />
-      </div>
-
-      {/* Contenuto principale che si adatta allo spazio rimanente */}
-      <main className="flex-1 overflow-auto">
-        <Dashboard />
-      </main>
+    <div className={`montserrat flex w-full h-auto relative ${isDark ? "bg-gray-900 text-white" : "bg-white text-gray-900"}`}>
+      <Sidebar />
+      {selectedComponent}
+      <div className={`${openSideBar ? "block" : "hidden"} w-full h-full fixed bg-black z-9 opacity-20`}></div>
     </div>
   );
 }

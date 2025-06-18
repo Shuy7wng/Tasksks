@@ -15,7 +15,6 @@ interface statisticsCard {
 
 export default function Statistics() {
   const statisticsCard: statisticsCard[] = [
-    { text: "Categories", numbers: 3, icon: faLayerGroup },
     { text: "Totale", numbers: 15, icon: faDiagramProject },
     { text: "Completate", numbers: 30, icon: faListCheck },
     { text: "Categorie", numbers: 3, icon: faLayerGroup },
@@ -40,7 +39,7 @@ export default function Statistics() {
 
   return (
     <div
-      className={`flex flex-nowrap overflow-x-auto gap-10 p-10 px-18 rounded-2xl shadow-2xl ${isDark ? "bg-[#161d3a]" : "bg-white"
+      className={`flex flex-nowrap overflow-x-auto gap-10 p-10 rounded-2xl shadow-2xl ${isDark ? "bg-[#161d3a]" : "bg-white"
         }`}
     >
       {statisticsCard.map((singleCard, index) => (
