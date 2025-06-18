@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Montserrat } from "next/font/google";
 import "./globals.css";
-import { GlobalContextProvider } from "./contextAPI";
+import { GlobalContextProvider } from "@/app/contextAPI";
 
 const inter = Inter({ subsets: ["latin"] });
 const montserrat = Montserrat({
