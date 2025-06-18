@@ -43,8 +43,8 @@ export default function TopBar() {
           {!openSearchBar && (
             <FontAwesomeIcon
               icon={faSearch}
-              className={`cursor-pointer text-[20px] ${isDark ? "text-white" : "text-gray-700"}}
-              onClick={() => setOpenSearchBar(true)`}
+              className={`cursor-pointer text-[20px] ${isDark ? "text-white" : "text-gray-700"}`}
+              onClick={() => setOpenSearchBar(true)}
             />
           )}
 
@@ -53,8 +53,8 @@ export default function TopBar() {
               <SearchBar />
               <FontAwesomeIcon
                 icon={faClose}
-                className={`cursor-pointer text-[18px] ${isDark ? "text-white" : "text-gray-700"}}
-                onClick={() => setOpenSearchBar(false)`}
+                className={`cursor-pointer text-[18px] ${isDark ? "text-white" : "text-gray-700"}`}
+                onClick={() => setOpenSearchBar(false)}
               />
             </div>
           )}
