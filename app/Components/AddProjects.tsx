@@ -83,7 +83,7 @@ function AddProjects() {
               placeholder="Dai un nome al tuo progetto..."
             />
             <FontAwesomeIcon
-              className="bg-gradient-to-tr from-[#2c67f2] to-[#62cff4] mt-[1px] p-3 rounded-md text-white"
+              className="bg-gradient-to-tr from-[#2c67f2] to-[#62cff4] cursor-pointer mt-[1px] p-3 rounded-md text-white"
               icon={faPodcast}
               height={15}
               width={20}
@@ -95,7 +95,7 @@ function AddProjects() {
         <div className="flex flex-col gap-2 mt-8 mx-3">
           <span className="text-sm opacity-80">Categoria</span>
           <select
-            className={`p-3 text-[13px] outline-none border rounded-md border-gray-200 ${
+            className={`p-3 cursor-pointer text-[13px] outline-none border rounded-md border-gray-200 ${
               isDark ? "bg-[#161d3a]" : "bg-white opacity-60"
             }`}
           >
@@ -107,7 +107,7 @@ function AddProjects() {
 
         {/* Bottone */}
         <div className="text-center mx-2 mt-10">
-          <button className="bg-gradient-to-tr from-[#2c67f2] to-[#62cff4] w-full p-3 text-white rounded-md text-sm">
+          <button className="bg-gradient-to-tr from-[#2c67f2] to-[#62cff4] cursor-pointer w-full p-3 text-white rounded-md text-sm">
             Aggiungi
           </button>
         </div>

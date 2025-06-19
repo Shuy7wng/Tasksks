@@ -18,7 +18,7 @@ export default function DarkMode() {
         className={`
           relative rounded-3xl h-[33px] w-[59px] flex items-center
           transition-colors duration-300 ease-in-out
-          ${isDark ? "bg-[#006fb4]" : "bg-yellow-200"}
+          ${isDark ? "bg-[#006fb4]" : "bg-yellow-300"}
         `}
       >
         <div

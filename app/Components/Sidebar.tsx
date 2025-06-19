@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import DarkMode from "../Components/Darkmode";
@@ -15,20 +17,19 @@ function Sidebar() {
   useEffect(() => {
     function handleResize() {
       setOpenSideBar(false);
-      // aggiorna larghezza sidebar
       if (sideBarRef.current) {
         setSidebarWidth(sideBarRef.current.offsetWidth);
       }
     }
     function handleOutsideClick(event: MouseEvent) {
       if (
-        sideBarRef.current && !sideBarRef.current.contains(event.target as Node)
+        sideBarRef.current &&
+        !sideBarRef.current.contains(event.target as Node)
       ) {
         setOpenSideBar(false);
       }
     }
 
-    // imposta larghezza sidebar iniziale
     if (sideBarRef.current) {
       setSidebarWidth(sideBarRef.current.offsetWidth);
     }
@@ -43,19 +44,16 @@ function Sidebar() {
   }, [openSideBar, setOpenSideBar]);
 
   function updateItemSelection(indexItem: number) {
-    const copyMenuItems = menuItems.map((item, index) => {
-      if (indexItem === index) {
-        return { ...item, isSelected: true };
-      }
-      return { ...item, isSelected: false };
-    });
-
+    const copyMenuItems = menuItems.map((item, index) => ({
+      ...item,
+      isSelected: indexItem === index,
+    }));
     setMenuItems(copyMenuItems);
   }
 
   return (
     <>
-      {/* Overlay che oscura solo la parte a destra della sidebar, usando larghezza dinamica */}
+      {/* Overlay per mobile (oscura il resto) */}
       {openSideBar && (
         <div
           style={{
@@ -64,7 +62,9 @@ function Sidebar() {
             left: sidebarWidth,
             width: `calc(100vw - ${sidebarWidth}px)`,
             height: "100vh",
-            backgroundColor: isDark ? "rgba(14, 19, 36, 0.3)" : "rgba(0,0,0,0.15)",
+            backgroundColor: isDark
+              ? "rgba(14, 19, 36, 0.3)"
+              : "rgba(0,0,0,0.15)",
             zIndex: 30,
             pointerEvents: "none",
           }}
@@ -73,9 +73,11 @@ function Sidebar() {
 
       <div
         ref={sideBarRef}
-        className={`${openSideBar ? "flex absolute h-full w-[280px]" : "hidden"}
-        montserrat z-40 shadow-xl w-full max-w-[330px] h-screen p-6 pt-12 md:flex flex-col gap-32 transition-colors 
-          ${isDark ? "bg-[#0e1324]" : "bg-white"}`}
+        className={`${
+          openSideBar ? "flex fixed top-0 left-0" : "hidden"
+        } md:flex fixed top-0 left-0 h-screen w-[280px] 
+        montserrat z-40 shadow-xl p-6 pt-12 flex-col gap-32 transition-colors 
+        ${isDark ? "bg-[#0e1324]" : "bg-white"}`}
       >
         {/* Logo */}
         <div className="flex gap-2 items-center justify-center mb-6">
@@ -95,24 +97,25 @@ function Sidebar() {
               key={index}
               onClick={() => updateItemSelection(index)}
               className={`p-3 rounded-md cursor-pointer flex items-center justify-center gap-2
-              ${
-                item.isSelected
-                  ? isDark
-                    ? "text-white border border-[#0893c9]"
-                    : "text-white"
-                  : "bg-transparent"
-              }`}
+                ${
+                  item.isSelected
+                    ? isDark
+                      ? "text-white border border-[#0893c9]"
+                      : "text-white"
+                    : "bg-transparent"
+                }`}
               style={
                 item.isSelected
                   ? {
-                      backgroundImage: "linear-gradient(to top,#2c67f2 , #62cff4)",
+                      backgroundImage:
+                        "linear-gradient(to top,#2c67f2 , #62cff4)",
                     }
                   : {}
               }
             >
               <FontAwesomeIcon
                 icon={item.icon}
-                className={item.isSelected ? "text-white" : "text-[#006fb4]"}
+                className={item.isSelected ? "text-white" : "text-[#2c67f2]"}
               />
               <span>{item.name}</span>
             </button>

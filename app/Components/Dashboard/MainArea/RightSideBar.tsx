@@ -7,7 +7,7 @@ function RightSideBar() {
 
   return (
     <div className={`w-full lg:w-[320px] rounded-2xl shadow-2xl transition-colors 
-      ${isDark ? "bg-blackColor" : "bg-white"}`}>
+      ${isDark ? "bg-[#0e1324]" : "bg-white"}`}>
       
       <LatestProjects />
     </div>

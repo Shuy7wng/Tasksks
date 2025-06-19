@@ -8,7 +8,8 @@ function Dashboard() {
   const { isDark } = useGlobalContextProvider();
 
   return (
-    <div className={`montserrat w-full min-h-screen transition-colors duration-300 ${isDark ? "bg-[#121212] text-white" : "bg-gray-50 text-gray-900"}`}>
+    <div className={`montserrat w-full min-h-screen transition-colors duration-300 
+    ${isDark ? "bg-[#161d3a] text-white" : "bg-gray-50 text-gray-900"}`}>
       {/* Top Bar */}
       <TopBar />
 

@@ -28,7 +28,7 @@ export default function Statistics() {
       setCurrentWidth(window.innerWidth);
     }
 
-    handleResize(); // inizializza dopo mount
+    handleResize(); 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -40,7 +40,7 @@ export default function Statistics() {
   return (
     <div
       className={`flex flex-nowrap overflow-x-auto gap-10 p-10 rounded-2xl shadow-2xl 
-        ${isDark ? "bg-[#161d3a]" : "bg-white"
+        ${isDark ? "bg-[#0e1324]" : "bg-white"
         }`}
     >
       {statisticsCard.map((singleCard, index) => (
@@ -65,7 +65,8 @@ function Card({
 
   return (
     <div
-      className={`flex flex-1 min-w-[200px] items-center justify-between text-white p-4 px-6 rounded-lg shadow-2xl bg-gradient-to-tr from-[#2c67f2] to-[#62cff4]
+      className={`flex flex-1 min-w-[200px] items-center justify-between text-white p-4 px-6 rounded-lg shadow-2xl 
+      bg-gradient-to-tr from-[#2c67f2] to-[#62cff4]
     ${currentWidth < 1318 ? "gap-6" : "gap-11"}`}
     >
       <div className={`flex flex-col ${currentWidth < 750 ? "items-center" : ""}`}>
@@ -78,7 +79,7 @@ function Card({
         className={`h-12 w-12 rounded-full bg-white flex items-center justify-center ${currentWidth < 750 ? "hidden" : ""
           }`}
       >
-        <FontAwesomeIcon icon={icon} className="text-[#006fb4] text-lg" />
+        <FontAwesomeIcon icon={icon} className="text-[#2c67f2] text-lg" />
       </div>
     </div>
   );

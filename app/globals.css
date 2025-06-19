@@ -14,9 +14,6 @@ html, body, #__next {
   height: 100%;
   margin: 0;
 }
-body {
-  overflow: hidden;
-}
 }
 .light-mode{
   background-color: white;

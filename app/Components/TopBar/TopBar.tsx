@@ -34,7 +34,7 @@ export default function TopBar() {
         </div>
         <div className="flex flex-col">
           <span className="font-bold text-4xl">
-            Hello :D
+            Home
           </span>
         </div>
       </div>
