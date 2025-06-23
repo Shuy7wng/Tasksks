@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Progetto, useGlobalContextProvider } from "@/app/contextAPI";
+import { Progetto, useGlobalContextProvider, Categoria } from "@/app/contextAPI";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faProjectDiagram,
@@ -23,59 +23,54 @@ function ProjectsArea() {
   } = dropDown;
 
   const [currentWidth, setCurrentWidth] = useState<number>(window.innerWidth);
-  const [progetti, setProgetti] = useState<Progetto[]>([]);
+  const [projects, setProjects] = useState<Progetto[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    function handleResize() {
+    function onResize() {
       setCurrentWidth(window.innerWidth);
     }
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
   useEffect(() => {
-    async function fetchProgetti() {
+    async function fetchProjects() {
       setLoading(true);
       try {
         const res = await fetch("/api/progetti");
         const data = await res.json();
-
-        const progettiArray = Array.isArray(data) ? data : data?.progetti || [];
-        const progettiConCategorie = (progettiArray as Progetto[]).map((proj) => ({
-          ...proj,
-          categorie: Array.isArray(proj.categorie) ? proj.categorie : [],
-        }));
-
-        setProgetti(progettiConCategorie);
+        const arr = Array.isArray(data) ? data : data?.progetti || [];
+        setProjects(
+          (arr as Progetto[]).map((p) => ({
+            ...p,
+            categorie: Array.isArray(p.categoria) ? (p.categoria as Categoria[]) : [],
+          }))
+        );
       } catch {
-        setProgetti([]);
+        setProjects([]);
       } finally {
         setLoading(false);
       }
     }
-    fetchProgetti();
+    fetchProjects();
   }, [refreshProjects]);
 
-  const gridCols = currentWidth < 588 ? 1 : currentWidth < 814 ? 2 : 3;
+  const cols = currentWidth < 588 ? 1 : currentWidth < 814 ? 2 : 3;
 
-  function handleEdit(progetto: Progetto) {
+  function handleEdit(proj: Progetto) {
     projectWindow.setOpenCreateProject(true);
-    projectWindow.setEditingProject(progetto);
+    projectWindow.setEditingProject(proj);
     setOpenDropDown(false);
   }
 
-  async function handleDelete(progetto: Progetto) {
+  async function handleDelete(proj: Progetto) {
     try {
-      const res = await fetch(`/api/progetti?id=${progetto.id}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) throw new Error("Errore eliminazione progetto");
-
+      const res = await fetch(`/api/progetti?id=${proj.id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
       setOpenDropDown(false);
-      projectWindow.setRefreshProjects((prev) => !prev);
-    } catch (error) {
-      console.error("Errore eliminazione:", error);
+      projectWindow.setRefreshProjects((v) => !v);
+    } catch {
       alert("Errore eliminazione progetto");
     }
   }
@@ -83,29 +78,25 @@ function ProjectsArea() {
   return (
     <div className={`${isDark ? "bg-[#161d3a]" : "bg-slate-50"} p-8`}>
       <div
-        className={`${
-          isDark ? "bg-[#0e1324]" : "bg-white"
-        } grid gap-4 p-6 rounded-md py-8 shadow-2xl`}
-        style={{ gridTemplateColumns: `repeat(${gridCols}, minmax(0, 1fr))` }}
+        className={`${isDark ? "bg-[#0e1324]" : "bg-white"
+          } grid gap-4 p-6 rounded-md py-8 shadow-2xl`}
+        style={{ gridTemplateColumns: `repeat(${cols}, minmax(0,1fr))` }}
       >
-        {loading ? (
-          <p className={`${isDark ? "text-white" : "text-gray-700"}`}>
-            Caricamento progetti...
-          </p>
-        ) : progetti.length === 0 ? (
+        {projects.length === 0 ? (
           <p className={`${isDark ? "text-white" : "text-gray-700"}`}>
             Nessun progetto disponibile
           </p>
         ) : (
-          progetti.map((progetto) => (
+          projects.map((project) => (
             <ProjectCard
-              key={progetto.id}
-              progetto={progetto}
+              key={project.id}
+              project={project}
               onEdit={handleEdit}
               onDelete={handleDelete}
             />
           ))
         )}
+
         <DropDown<Progetto>
           open={openDropDown}
           onClose={() => setOpenDropDown(false)}
@@ -123,58 +114,50 @@ function ProjectsArea() {
 export default ProjectsArea;
 
 function ProjectCard({
-  progetto,
+  project,
   onEdit,
   onDelete,
 }: {
-  progetto: Progetto;
+  project: Progetto;
   onEdit: (p: Progetto) => void;
   onDelete: (p: Progetto) => void;
 }) {
   const { isDark, dropDown } = useGlobalContextProvider();
   const { setOpenDropDown, setDropDownPosition, setSelectedItem } = dropDown;
 
-  function handleOpenDropDown(event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-    event.stopPropagation();
-    setSelectedItem(progetto);
-    setDropDownPosition({ x: event.clientX, y: event.clientY });
+  function openMenu(e: React.MouseEvent<HTMLDivElement>) {
+    e.stopPropagation();
+    setSelectedItem(project);
+    setDropDownPosition({ x: e.clientX, y: e.clientY });
     setOpenDropDown(true);
   }
 
   return (
     <div
-      className={`${
-        isDark ? "bg-[#161d3a]" : "bg-slate-100"
-      } py-5 rounded-md p-4 text-sm flex flex-col gap-6 relative shadow-sm`}
+      className={`${isDark ? "bg-[#161d3a]" : "bg-slate-100"
+        } py-5 rounded-md p-4 text-sm flex flex-col gap-6 relative shadow-sm`}
     >
       <div
-        onClick={handleOpenDropDown}
-        className="absolute text-center right-3 cursor-pointer p-1 rounded-full h-7 w-7 hover:bg-gray-200 transition-all"
+        onClick={openMenu}
+        className="absolute right-3 top-3 cursor-pointer p-1 rounded-full h-7 w-7 hover:bg-gray-200 flex items-center justify-center"
       >
-        <FontAwesomeIcon
-          className="text-gray-500"
-          icon={faEllipsis}
-          height={10}
-          width={10}
-        />
+        <FontAwesomeIcon icon={faEllipsis} className="text-gray-500" />
       </div>
+
       <div className="flex gap-2 items-center">
         <FontAwesomeIcon
-          className="bg-[#2c67f2] p-2 text-white rounded-full w-[12px] h-[12px]"
-          height={13}
-          width={13}
           icon={faProjectDiagram}
+          className="bg-[#2c67f2] p-2 text-white rounded-full w-[12px] h-[12px]"
         />
-        <span className="cursor-pointer hover:text-[#006fb4]">{progetto.nome}</span>
+        <span className="cursor-pointer hover:text-[#006fb4]">
+          {project.nome}
+        </span>
       </div>
+
       <div className="flex flex-col gap-2">
-        <div
-          className={`${
-            isDark ? "text-white" : "text-gray-500"
-          } flex justify-between items-center text-[12px]`}
-        >
+        <div className={`${isDark ? "text-white" : "text-gray-500"} flex justify-between items-center text-[12px]`}>
           <div className="flex gap-2 items-center">
-            <FontAwesomeIcon height={12} width={12} icon={faBarsProgress} />
+            <FontAwesomeIcon icon={faBarsProgress} height={12} width={12} />
             <span>Progresso</span>
           </div>
           <span>9/12</span>
@@ -182,16 +165,15 @@ function ProjectCard({
         <div className="w-full h-[5px] rounded-2xl bg-gray-400 overflow-hidden"></div>
       </div>
       <div className="flex flex-wrap text-[12px] gap-2 mt-3">
-        {Array.isArray(progetto.categorie) &&
-          progetto.categorie.map((cat, index) => (
-            <div
-              key={index}
-              className="bg-gradient-to-tr from-[#2c67f2] to-[#62cff4] p-1 rounded-md text-white px-3"
-            >
-              {String(cat)}
-            </div>
-          ))}
+       {project.categoria ? (
+         <span className="bg-gradient-to-tr from-[#2c67f2] to-[#62cff4] p-1 rounded-md text-white px-3">
+           {project.categoria.nome}
+        </span>
+        ) : (
+         <span>Nessuna categoria</span>
+        )}
       </div>
+
     </div>
   );
 }

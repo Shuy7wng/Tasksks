@@ -28,7 +28,7 @@ export interface Categoria {
 export interface Progetto {
   id: string | number;
   nome: string;
-  categorie?: unknown[];
+  categoria?: Categoria;
 }
 
 interface MenuItem {

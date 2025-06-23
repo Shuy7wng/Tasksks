@@ -36,23 +36,24 @@ function progettoToCategoria(proj: Progetto): Categoria {
 export function useCategorie() {
   const [list, setList] = useState<Categoria[]>([]);
 
-  useEffect(() => {
-    async function fetchCategorie() {
-      try {
-        const res = await fetch('/api/categorie');
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          setList(data);
-        } else {
-          setList([{ id: 1, nome: "do" }, { id: 2, nome: "todo" }]);
-        }
-      } catch {
-        setList([{ id: 1, nome: "do" }, { id: 2, nome: "todo" }]);
+useEffect(() => {
+  async function fetchCategorie() {
+    try {
+      const res = await fetch("/api/categorie");
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setList(data);
+      } else {
+        setList([]);    // ora lista vuota invece di “do”/“todo”
       }
+    } catch {
+      setList([]);      // anche in caso di errore, lista vuota
     }
+  }
 
-    fetchCategorie();
-  }, []);
+  fetchCategorie();
+}, []);
+
 
   return { list, setList };
 }
@@ -110,12 +111,12 @@ function CategoriesArea() {
   }
 
   return (
-    <div className={`${isDark ? "bg-[#161d3a]" : "bg-slate-50"} p-8 h-[870px] relative`}>
+    <div className={`${isDark ? "bg-[#161d3a]" : "bg-slate-50"} p-8`}>
       <div
-        className={`${isDark ? "bg-[#0e1324]" : "bg-slate-50"} shadow-2xl rounded-md p-4 py-5 flex flex-col gap-4`}
+        className={`${isDark ? "bg-[#0e1324]" : "bg-slate-50"}  grid gap-4 p-6 rounded-md py-8 shadow-2xl`}
       >
         {categorie.list.length === 0 && (
-          <p className="text-gray-500">Nessuna categoria disponibile</p>
+          <p className={`${isDark ? "text-white" : "text-gray-700"}`}>Nessuna categoria disponibile</p>
         )}
         {categorie.list.map((category, index) => (
           <CategoriesCard
