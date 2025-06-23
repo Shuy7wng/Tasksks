@@ -1,39 +1,43 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPencil, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { Progetto, DropDownPosition } from "@/app/contextAPI"; // importa i tipi se li hai
 
-interface DropDownProps {
+interface DropDownPosition {
+  x: number;
+  y: number;
+}
+
+interface DropDownProps<T> {
   open: boolean;
   position: DropDownPosition;
   onClose: () => void;
-  onEdit: (project: Progetto) => void;
-  onDelete: (project: Progetto) => void;
-  selectedProject: Progetto | null;
+  onEdit: (item: T) => void;
+  onDelete: (item: T) => void;
+  selectedItem: T | null;
   isDark: boolean;
 }
 
-function DropDown({
+function DropDown<T>({
   open,
   position,
   onClose,
   onEdit,
   onDelete,
-  selectedProject,
+  selectedItem,
   isDark,
-}: DropDownProps) {
+}: DropDownProps<T>) {
   const [hoveredItem, setHoveredItem] = useState<number | null>(null);
   const dropDownRef = useRef<HTMLDivElement>(null);
 
   function handleEdit() {
-    if (selectedProject) {
-      onEdit(selectedProject);
+    if (selectedItem) {
+      onEdit(selectedItem);
     }
   }
 
   function handleDelete() {
-    if (selectedProject) {
-      onDelete(selectedProject);
+    if (selectedItem) {
+      onDelete(selectedItem);
     }
   }
 
@@ -74,8 +78,9 @@ function DropDown({
     <div
       ref={dropDownRef}
       style={{ left: position.x - 160, top: position.y + 20 }}
-      className={`p-3 w-40 fixed z-50 shadow-md flex rounded-lg flex-col gap-3 text-[13px] ${isDark ? "bg-[#0e1324]" : "bg-white"
-        }`}
+      className={`p-3 w-40 fixed z-50 shadow-md flex rounded-lg flex-col gap-3 text-[13px] ${
+        isDark ? "bg-[#0e1324]" : "bg-white"
+      }`}
     >
       {dropMenuItem.map((menuItem, index) => (
         <div

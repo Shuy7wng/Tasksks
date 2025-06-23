@@ -26,7 +26,7 @@ export interface Categoria {
 }
 
 export interface Progetto {
-  id: number | string;
+  id: string | number;
   nome: string;
   categorie?: unknown[];
 }
@@ -89,8 +89,8 @@ interface GlobalContextType {
     setOpenDropDown: (openDropDown: boolean) => void;
     dropDownPosition: DropDownPosition;
     setDropDownPosition: Dispatch<SetStateAction<DropDownPosition>>;
-    selectedProject: Progetto | null;
-    setSelectedProject: Dispatch<SetStateAction<Progetto | null>>;
+selectedItem: any; // oppure Progetto | Categoria
+setSelectedItem: Dispatch<SetStateAction<any>>;
     dropdownContent: React.ReactNode;
     setDropdownContent: Dispatch<SetStateAction<React.ReactNode>>;
   };
@@ -130,7 +130,8 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
   const [openCreatedProject, setOpenCreateProject] = useState(false);
   const [openTaskWindow, setOpenTaskWindow] = useState(false);
   const [categorie, setCategorie] = useState<Categoria[]>([]);
-  const [selectedProject, setSelectedProject] = useState<Progetto | null>(null);
+const [selectedItem, setSelectedItem] = useState<any>(null); // oppure usa Progetto | Categoria
+
   const [dropdownContent, setDropdownContent] = useState<React.ReactNode>(null);
   const [editingProject, setEditingProject] = useState<Progetto | null>(null);
   const [progetti, setProgetti] = useState<Progetto[]>([]); 
@@ -219,8 +220,8 @@ async function deleteProject(projectId: number | string) {
     setOpenDropDown,
     dropDownPosition,
     setDropDownPosition,
-    selectedProject,
-    setSelectedProject,
+selectedItem,
+setSelectedItem,
     dropdownContent,
     setDropdownContent,
   };

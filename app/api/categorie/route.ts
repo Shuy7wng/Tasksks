@@ -34,3 +34,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Errore durante la creazione categoria" }, { status: 500 });
   }
 }
+export async function DELETE(request: Request) {
+  const id = Number(new URL(request.url).searchParams.get('id'));
+  if (!id) return NextResponse.json({ error: "Id mancante" }, { status: 400 });
+  await prisma.categoria.delete({ where: { id } });
+  return NextResponse.json({ success: true });
+}
