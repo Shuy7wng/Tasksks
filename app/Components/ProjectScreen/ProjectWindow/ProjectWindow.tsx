@@ -48,7 +48,7 @@ function ProjectWindow() {
         className={`${isDark ? "bg-[#0e1324]" : "bg-white"} shadow-2xl z-40
             transition-all duration-300 ease-in-out rounded-lg flex flex-col`}
       >
-        <TaskWindow />
+        <TaskWindow progettoId={1} />
 
         {/* Header */}
         <div className="p-4 bg-gradient-to-tr from-[#2c67f2] to-[#62cff4] flex items-center justify-between px-4 rounded-t-lg">
@@ -65,7 +65,7 @@ function ProjectWindow() {
 
         {/* Corpo contenuto */}
         <div className="p-4 overflow-y-auto flex-1">
-          <TasksArea />
+          <TasksArea progettoId={1} />
         </div>
       </div>
     </>

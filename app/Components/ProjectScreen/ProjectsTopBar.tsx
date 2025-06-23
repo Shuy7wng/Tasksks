@@ -12,7 +12,7 @@ function ProjectsTopBar() {
         <div className={`${isDark ? "bg-[#161d3a]" : "bg-white"} px-8 pt-6 pb-4 flex justify-between items-center`}>
             <div className="flex gap-7 items-center">
 
-                <div className="flex md:hidden">
+                <div className="flex cursor-pointer md:hidden">
                     <FontAwesomeIcon
                         onClick={() => setOpenSideBar(!openSideBar)}
                         height={14}

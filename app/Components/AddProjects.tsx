@@ -1,55 +1,110 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPodcast, faClose } from "@fortawesome/free-solid-svg-icons";
 import { useGlobalContextProvider } from "@/app/contextAPI";
 
 function AddProjects() {
-  const [position, setPosition] = useState({ left: 0, top: 0 });
-  const [childWidth, setInnerWidth] = useState(590);
-  const { projectWindow, isDark } = useGlobalContextProvider();
-  const { openNewProjectBox, setOpenNewProjectBox } = projectWindow;
-  const parentWidth = window.innerWidth;
-  const parentHeight = window.innerHeight;
-  const childHeight = 400;
+  const [nome, setNome] = useState("");
+  const [categoria, setCategoria] = useState("");
+  const [categorie, setCategorie] = useState<{ id: number; nome: string }[]>([]);
 
-  // Imposta larghezza sidebar fissa (o leggi da contesto se dinamica)
+  const { projectWindow, isDark } = useGlobalContextProvider();
+  const { openNewProjectBox, setOpenNewProjectBox, refreshProjects, setRefreshProjects } = projectWindow;
+
+  const [position, setPosition] = useState({ left: 0, top: 0 });
+  const [childWidth, setChildWidth] = useState(590);
+  const childHeight = 400;
   const sidebarWidth = 280;
 
   useEffect(() => {
+    async function fetchCategorie() {
+      try {
+        const res = await fetch("/api/categorie");
+        if (!res.ok) throw new Error("Errore caricamento categorie");
+        const data = await res.json();
+        setCategorie(data);
+      } catch (error) {
+        console.error(error);
+        alert("Errore caricamento categorie. Controlla console.");
+      }
+    }
+
+    fetchCategorie();
+  }, []);
+
+  useEffect(() => {
     const calculatePosition = () => {
+      const parentWidth = window.innerWidth;
+      const parentHeight = window.innerHeight;
       const left = (parentWidth - childWidth) / 2;
       const top = (parentHeight - childHeight) / 2;
       setPosition({ left, top });
+
+      if (parentWidth < 600) setChildWidth(340);
+      else setChildWidth(590);
     };
+
     calculatePosition();
-    const handleResize = () => calculatePosition();
+    window.addEventListener("resize", calculatePosition);
+    return () => window.removeEventListener("resize", calculatePosition);
+  }, [childWidth]);
 
-    if (parentWidth < 600) setInnerWidth(340);
-    else setInnerWidth(570);
+  const handleAggiungiProgetto = async () => {
+    if (!nome.trim() || !categoria) {
+      alert("Inserisci nome e seleziona una categoria.");
+      return;
+    }
 
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [window.innerWidth, window.innerHeight, childWidth, parentWidth, parentHeight]);
+    try {
+      const res = await fetch("/api/progetti", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nome,
+          categoriaId: parseInt(categoria, 10),
+        }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        alert(`Errore: ${error.error}`);
+        return;
+      }
+
+      const data = await res.json();
+      console.log("Progetto salvato:", data);
+
+      setNome("");
+      setCategoria("");
+      setOpenNewProjectBox(false);
+      setRefreshProjects((prev) => !prev);
+    } catch (err) {
+      console.error("Errore nella richiesta:", err);
+      alert("Errore durante la creazione del progetto.");
+    }
+  };
+
+  if (!openNewProjectBox) return null;
 
   return (
     <>
-      {/* Overlay che oscura solo la parte a destra della sidebar */}
-      {openNewProjectBox && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: sidebarWidth,
-            width: `calc(100vw - ${sidebarWidth}px)`,
-            height: "100vh",
-            backgroundColor: isDark ? "rgba(14, 19, 36, 0.3)" : "rgba(0,0,0,0.15)",
-            zIndex: 30,
-            pointerEvents: "none",
-          }}
-        />
-      )}
+      {/* Overlay */}
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: sidebarWidth,
+          width: `calc(100vw - ${sidebarWidth}px)`,
+          height: "100vh",
+          backgroundColor: isDark ? "rgba(14, 19, 36, 0.3)" : "rgba(0,0,0,0.15)",
+          zIndex: 30,
+          pointerEvents: "none",
+        }}
+      />
 
-      {/* Finestra popup */}
+      {/* Popup */}
       <div
         style={{
           left: `${position.left}px`,
@@ -57,10 +112,9 @@ function AddProjects() {
           width: `${childWidth}px`,
           height: `${childHeight}px`,
         }}
-        className={`
-          ${openNewProjectBox ? "visible opacity-100" : "invisible opacity-0"} transition-all fixed p-6 py-7 rounded-lg flex flex-col z-40 shadow-lg
-          ${isDark ? "bg-[#0e1324]" : "bg-white"}
-        `}
+        className={`fixed p-6 py-7 rounded-lg flex flex-col z-40 shadow-lg transition-all
+          ${openNewProjectBox ? "visible opacity-100" : "invisible opacity-0"}
+          ${isDark ? "bg-[#0e1324]" : "bg-white"}`}
       >
         {/* Header */}
         <div className="flex justify-between items-center">
@@ -77,6 +131,8 @@ function AddProjects() {
           <span className="text-sm opacity-80">Nome progetto</span>
           <div className="flex gap-4 justify-between items-center">
             <input
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
               className={`border w-full border-gray-200 outline-none p-3 rounded-md text-[12px] ${
                 isDark ? "bg-[#161d3a]" : "bg-white"
               }`}
@@ -95,19 +151,27 @@ function AddProjects() {
         <div className="flex flex-col gap-2 mt-8 mx-3">
           <span className="text-sm opacity-80">Categoria</span>
           <select
+            value={categoria}
+            onChange={(e) => setCategoria(e.target.value)}
             className={`p-3 cursor-pointer text-[13px] outline-none border rounded-md border-gray-200 ${
               isDark ? "bg-[#161d3a]" : "bg-white opacity-60"
             }`}
           >
             <option value="">Seleziona una categoria</option>
-            <option value="option2">Category 1</option>
-            <option value="option3">Category 2</option>
+            {categorie.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.nome}
+              </option>
+            ))}
           </select>
         </div>
 
         {/* Bottone */}
         <div className="text-center mx-2 mt-10">
-          <button className="bg-gradient-to-tr from-[#2c67f2] to-[#62cff4] cursor-pointer w-full p-3 text-white rounded-md text-sm">
+          <button
+            onClick={handleAggiungiProgetto}
+            className="bg-gradient-to-tr from-[#2c67f2] to-[#62cff4] cursor-pointer w-full p-3 text-white rounded-md text-sm"
+          >
             Aggiungi
           </button>
         </div>

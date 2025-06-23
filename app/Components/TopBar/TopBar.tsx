@@ -25,7 +25,7 @@ export default function TopBar() {
 
       <div className="flex gap-7 items-center">
         {/* bars icon */}
-        <div className="flex md:hidden">
+        <div className="flex cursor-pointer md:hidden">
           <FontAwesomeIcon 
           onClick= {()=> setOpenSideBar(!openSideBar)}
           height={14} 

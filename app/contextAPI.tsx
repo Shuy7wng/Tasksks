@@ -15,7 +15,6 @@ import {
   SetStateAction,
 } from "react";
 
-// Tipo per la posizione del drop-down
 interface DropDownPosition {
   x: number;
   y: number;
@@ -25,6 +24,12 @@ interface MenuItem {
   name: string;
   icon: any;
   isSelected: boolean;
+}
+
+interface Task {
+  id: number;
+  name: string;
+  priority: string;
 }
 
 interface GlobalContextType {
@@ -48,6 +53,10 @@ interface GlobalContextType {
     setOpenCreateProject: (openCreateProject: boolean) => void;
     openTaskWindow: boolean;
     setOpenTaskWindow: (openTaskWindow: boolean) => void;
+    openNewCategorieBox: boolean;
+    setOpenNewCategorieBox: (openNewCategorieBox: boolean) => void;
+    refreshProjects: boolean;
+    setRefreshProjects: Dispatch<SetStateAction<boolean>>;
   };
 
   iconBox: {
@@ -62,15 +71,25 @@ interface GlobalContextType {
     dropDownPosition: DropDownPosition;
     setDropDownPosition: Dispatch<SetStateAction<DropDownPosition>>;
   };
+
+  categorie: {
+    list: string[];
+    setList: Dispatch<SetStateAction<string[]>>;
+  };
+
+  tasksContext: {
+    tasks: Task[];
+    setTasks: Dispatch<SetStateAction<Task[]>>;
+    fetchTasks: (projectId: number) => Promise<void>;
+  };
 }
 
-// Contesto inizialmente undefined
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 
-// Provider
 export function GlobalContextProvider({ children }: { children: ReactNode }) {
   const [isDark, setIsDark] = useState<boolean>(false);
   const [openSideBar, setOpenSideBar] = useState<boolean>(false);
+  const [refreshProjects, setRefreshProjects] = useState<boolean>(false);
 
   const [menuItems, setMenuItems] = useState<MenuItem[]>([
     { name: "Home", icon: faDashboard, isSelected: true },
@@ -79,29 +98,69 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
   ]);
 
   const [openNewProjectBox, setOpenNewProjectBox] = useState(false);
+  const [openNewCategorieBox, setOpenNewCategorieBox] = useState(false);
   const [openIconBox, setOpenIconBox] = useState(false);
   const [openDropDown, setOpenDropDown] = useState(false);
-  const [dropDownPosition, setDropDownPosition] = useState<DropDownPosition>({ x: 0, y: 0 });
+  const [dropDownPosition, setDropDownPosition] = useState<DropDownPosition>({
+    x: 0,
+    y: 0,
+  });
   const [openCreatedProject, setOpenCreateProject] = useState(false);
   const [openTaskWindow, setOpenTaskWindow] = useState(false);
-  // Aggiorna la classe "dark" sul root element
+  const [categorie, setCategorie] = useState<string[]>(["do", "to-do"]);
+
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  // funzione fetchTasks da usare nel context
+  const fetchTasks = async (projectId: number) => {
+    try {
+      const res = await fetch(`/api/task?progettoId=${projectId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setTasks(data);
+      } else {
+        console.error("Errore fetchTasks: ", res.statusText);
+      }
+    } catch (error) {
+      console.error("Errore fetchTasks:", error);
+    }
+  };
+
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
   }, [isDark]);
 
-  // Chiude box se si cambia menu
   useEffect(() => {
-    if (openNewProjectBox ||
+    async function loadCategorie() {
+      try {
+        const res = await fetch("/api/categorie");
+        if (res.ok) {
+          const data = await res.json();
+          setCategorie(data.map((cat: any) => cat.nome));
+        }
+      } catch (err) {
+        console.error("Errore caricando categorie", err);
+      }
+    }
+    loadCategorie();
+  }, []);
+
+  // Chiude box se cambia menu
+  useEffect(() => {
+    if (
+      openNewProjectBox ||
       openIconBox ||
       openDropDown ||
-      openCreatedProject||
-      openTaskWindow
+      openCreatedProject ||
+      openTaskWindow ||
+      openNewCategorieBox
     ) {
       setOpenNewProjectBox(false);
       setOpenIconBox(false);
       setOpenDropDown(false);
       setOpenCreateProject(false);
       setOpenTaskWindow(false);
+      setOpenNewCategorieBox(false);
     }
   }, [menuItems]);
 
@@ -119,13 +178,27 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
           setOpenCreateProject,
           openTaskWindow,
           setOpenTaskWindow,
+          openNewCategorieBox,
+          setOpenNewCategorieBox,
+          refreshProjects,
+          setRefreshProjects,
         },
+        
         iconBox: { openIconBox, setOpenIconBox },
         dropDown: {
           openDropDown,
           setOpenDropDown,
           dropDownPosition,
           setDropDownPosition,
+        },
+        categorie: {
+          list: categorie,
+          setList: setCategorie,
+        },
+        tasksContext: {
+          tasks,
+          setTasks,
+          fetchTasks,
         },
       }}
     >
@@ -134,7 +207,6 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// Hook personalizzato per usare il contesto
 export function useGlobalContextProvider() {
   const context = useContext(GlobalContext);
   if (!context) {
