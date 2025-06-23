@@ -34,8 +34,59 @@ export async function GET() {
     });
 
     return NextResponse.json(progetti);
+  }catch (error) {
+  console.error("Errore fetching progetti:", error);
+  return NextResponse.json({ error: "Errore caricamento progetti", details: error instanceof Error ? error.message : error }, { status: 500 });
+}
+}
+export async function PUT(request: Request) {
+  try {
+    const data = await request.json();
+    const { id, nome, categoriaId } = data;
+
+    if (!id || !nome || !categoriaId) {
+      return NextResponse.json({ error: "Dati mancanti per aggiornamento" }, { status: 400 });
+    }
+
+    const progettoAggiornato = await prisma.progetto.update({
+      where: { id: Number(id) },
+      data: {
+        nome: nome.trim(),
+        categoriaId: Number(categoriaId),
+      },
+    });
+
+    return NextResponse.json(progettoAggiornato);
   } catch (error) {
-    console.error("Errore fetching progetti:", error);
-    return NextResponse.json({ error: "Errore caricamento progetti" }, { status: 500 });
+    console.error("Errore aggiornamento progetto:", error);
+    return NextResponse.json({ error: "Errore interno nel server" }, { status: 500 });
+  }
+}
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+    console.log("DELETE project id:", id);
+
+    if (!id) {
+      return NextResponse.json({ error: "ID progetto mancante" }, { status: 400 });
+    }
+
+    const progettoEsistente = await prisma.progetto.findUnique({
+      where: { id: Number(id) },
+    });
+
+    if (!progettoEsistente) {
+      return NextResponse.json({ error: "Progetto non trovato" }, { status: 404 });
+    }
+
+    await prisma.progetto.delete({
+      where: { id: Number(id) },
+    });
+
+    return NextResponse.json({ message: "Progetto eliminato con successo" });
+  } catch (error) {
+    console.error("Errore eliminazione progetto:", error);
+    return NextResponse.json({ error: "Errore interno nel server" }, { status: 500 });
   }
 }

@@ -15,13 +15,20 @@ import {
   SetStateAction,
 } from "react";
 
-interface DropDownPosition {
+export interface DropDownPosition {
   x: number;
   y: number;
 }
-interface Categoria {
+
+export interface Categoria {
   id: number;
   nome: string;
+}
+
+export interface Progetto {
+  id: number | string;
+  nome: string;
+  categorie?: unknown[];
 }
 
 interface MenuItem {
@@ -37,6 +44,8 @@ interface Task {
 }
 
 interface GlobalContextType {
+   progetti: Progetto[];
+  setProgetti: Dispatch<SetStateAction<Progetto[]>>;
   isDark: boolean;
   setIsDark: (isDark: boolean) => void;
 
@@ -61,11 +70,15 @@ interface GlobalContextType {
     setOpenNewCategorieBox: (openNewCategorieBox: boolean) => void;
     refreshProjects: boolean;
     setRefreshProjects: Dispatch<SetStateAction<boolean>>;
+    editingProject: Progetto | null;
+    setEditingProject: Dispatch<SetStateAction<Progetto | null>>;
   };
+
   categorie: {
     list: Categoria[];
-    setList: React.Dispatch<React.SetStateAction<Categoria[]>>;
+    setList: Dispatch<SetStateAction<Categoria[]>>;
   };
+
   iconBox: {
     openIconBox: boolean;
     setOpenIconBox: (openIconBox: boolean) => void;
@@ -74,21 +87,28 @@ interface GlobalContextType {
   dropDown: {
     openDropDown: boolean;
     setOpenDropDown: (openDropDown: boolean) => void;
-
     dropDownPosition: DropDownPosition;
     setDropDownPosition: Dispatch<SetStateAction<DropDownPosition>>;
+    selectedProject: Progetto | null;
+    setSelectedProject: Dispatch<SetStateAction<Progetto | null>>;
+    dropdownContent: React.ReactNode;
+    setDropdownContent: Dispatch<SetStateAction<React.ReactNode>>;
   };
-
   tasksContext: {
     tasks: Task[];
     setTasks: Dispatch<SetStateAction<Task[]>>;
     fetchTasks: (projectId: number) => Promise<void>;
   };
+   
+  // Funzioni per modificare ed eliminare progetto
+  editProject: (project: Progetto) => void;
+  deleteProject: (projectId: number | string) => void;
 }
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 
 export function GlobalContextProvider({ children }: { children: ReactNode }) {
+  // Stati principali
   const [isDark, setIsDark] = useState<boolean>(false);
   const [openSideBar, setOpenSideBar] = useState<boolean>(false);
   const [refreshProjects, setRefreshProjects] = useState<boolean>(false);
@@ -110,10 +130,40 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
   const [openCreatedProject, setOpenCreateProject] = useState(false);
   const [openTaskWindow, setOpenTaskWindow] = useState(false);
   const [categorie, setCategorie] = useState<Categoria[]>([]);
-
+  const [selectedProject, setSelectedProject] = useState<Progetto | null>(null);
+  const [dropdownContent, setDropdownContent] = useState<React.ReactNode>(null);
+  const [editingProject, setEditingProject] = useState<Progetto | null>(null);
+  const [progetti, setProgetti] = useState<Progetto[]>([]); 
   const [tasks, setTasks] = useState<Task[]>([]);
 
-  // funzione fetchTasks da usare nel context
+  // Funzione per modificare progetto
+  function editProject(project: Progetto) {
+    console.log("Modifica progetto nel context:", project);projectWindow 
+    // Qui puoi aggiungere la logica per aggiornare la lista progetti,
+    // oppure fare una chiamata API per salvare le modifiche
+  }
+
+async function deleteProject(projectId: number | string) {
+  console.log("Elimina progetto nel context con id:", projectId);
+  
+  try {
+    const res = await fetch(`/api/progetti?id=${projectId}`, {
+      method: "DELETE",
+    });
+
+    if (!res.ok) {
+      throw new Error("Errore eliminazione progetto");
+    }
+
+    // Se qui siamo, la cancellazione sul DB è riuscita
+    // Aggiorno la lista locale filtrando fuori il progetto eliminato
+    setProgetti((oldProgetti) => oldProgetti.filter(p => p.id !== projectId));
+  } catch (error) {
+    console.error("Errore eliminazione:", error);
+    alert("Errore durante l'eliminazione del progetto.");
+  }
+}
+  // fetchTasks da usare nel context
   const fetchTasks = async (projectId: number) => {
     try {
       const res = await fetch(`/api/task?progettoId=${projectId}`);
@@ -127,13 +177,14 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
       console.error("Errore fetchTasks:", error);
     }
   };
+
   useEffect(() => {
     async function loadCategorie() {
       try {
         const res = await fetch("/api/categorie");
         if (res.ok) {
           const data = await res.json();
-          setCategorie(data); // array di oggetti {id, nome}
+          setCategorie(data);
         }
       } catch (err) {
         console.error("Errore caricando categorie", err);
@@ -141,7 +192,6 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     }
     loadCategorie();
   }, []);
-
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
@@ -166,6 +216,31 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     }
   }, [menuItems]);
 
+  const dropDown = {
+    openDropDown,
+    setOpenDropDown,
+    dropDownPosition,
+    setDropDownPosition,
+    selectedProject,
+    setSelectedProject,
+    dropdownContent,
+    setDropdownContent,
+  };
+  const projectWindow = {
+    openNewProjectBox,
+    setOpenNewProjectBox,
+    openCreatedProject,
+    setOpenCreateProject,
+    openTaskWindow,
+    setOpenTaskWindow,
+    openNewCategorieBox,
+    setOpenNewCategorieBox,
+    refreshProjects,
+    setRefreshProjects,
+    editProject,
+    setEditingProject,
+  };
+
   return (
     <GlobalContext.Provider
       value={{
@@ -173,36 +248,36 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
         setIsDark,
         sideBar: { openSideBar, setOpenSideBar },
         dashboardItems: { menuItems, setMenuItems },
-        projectWindow: {
-          openNewProjectBox,
-          setOpenNewProjectBox,
-          openCreatedProject,
-          setOpenCreateProject,
-          openTaskWindow,
-          setOpenTaskWindow,
-          openNewCategorieBox,
-          setOpenNewCategorieBox,
-          refreshProjects,
-          setRefreshProjects,
-        },
+projectWindow: {
+        openNewProjectBox,
+        setOpenNewProjectBox,
+        openCreatedProject,
+        setOpenCreateProject,
+        openTaskWindow,
+        setOpenTaskWindow,
+        openNewCategorieBox,
+        setOpenNewCategorieBox,
+        refreshProjects,
+        setRefreshProjects,
+        editingProject,
+        setEditingProject,
+      },
+        progetti,     // qui
+      setProgetti,  // qui
 
         iconBox: { openIconBox, setOpenIconBox },
-        dropDown: {
-          openDropDown,
-          setOpenDropDown,
-          dropDownPosition,
-          setDropDownPosition,
-        },
+        dropDown,
         categorie: {
           list: categorie,
           setList: setCategorie,
         },
-
         tasksContext: {
           tasks,
           setTasks,
           fetchTasks,
         },
+        editProject,
+        deleteProject,
       }}
     >
       {children}

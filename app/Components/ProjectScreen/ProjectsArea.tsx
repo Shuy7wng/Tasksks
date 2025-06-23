@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useGlobalContextProvider } from "@/app/contextAPI";
+import { Progetto, useGlobalContextProvider } from "@/app/contextAPI";  // import tipo corretto
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faProjectDiagram,
@@ -8,18 +8,12 @@ import {
   faEllipsis,
 } from "@fortawesome/free-solid-svg-icons";
 
-interface ProgettoRaw  {
-  id: number | string;
-  nome: string;
-  categorie?: unknown; // sempre presente, almeno array vuoto
-}
-
 function ProjectsArea() {
   const { isDark, dropDown, projectWindow } = useGlobalContextProvider();
   const { refreshProjects } = projectWindow;
 
   const [currentWidth, setCurrentWidth] = useState<number>(window.innerWidth);
-  const [progetti, setProgetti] = useState<ProgettoRaw []>([]);
+  const [progetti, setProgetti] = useState<Progetto[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -30,39 +24,36 @@ function ProjectsArea() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-useEffect(() => {
-  async function fetchProgetti() {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/progetti");
-      const data = await res.json();
-      console.log("Dati fetchati:", data);  // <-- qui vedi cosa arriva davvero
+  useEffect(() => {
+    async function fetchProgetti() {
+      setLoading(true);
+      try {
+        const res = await fetch("/api/progetti");
+        const data = await res.json();
 
-if (Array.isArray(data)) {
-  const progettiConCategorie = (data as ProgettoRaw[]).map((proj: ProgettoRaw) => ({
-    ...proj,
-    categorie: Array.isArray(proj.categorie) ? proj.categorie : [],
-  }));
-  setProgetti(progettiConCategorie);
-} else if (data && Array.isArray(data.progetti)) {
-  const progettiConCategorie = (data.progetti as ProgettoRaw[]).map((proj: ProgettoRaw) => ({
-    ...proj,
-    categorie: Array.isArray(proj.categorie) ? proj.categorie : [],
-  }));
-  setProgetti(progettiConCategorie);
-} else {
-  setProgetti([]);
-}
-    } catch (error) {
-      console.error("Errore fetch progetti:", error);
-      setProgetti([]);
-    } finally {
-      setLoading(false);
+        if (Array.isArray(data)) {
+          const progettiConCategorie = (data as Progetto[]).map((proj: Progetto) => ({
+            ...proj,
+            categorie: Array.isArray(proj.categorie) ? proj.categorie : [],
+          }));
+          setProgetti(progettiConCategorie);
+        } else if (data && Array.isArray(data.progetti)) {
+          const progettiConCategorie = (data.progetti as Progetto[]).map((proj: Progetto) => ({
+            ...proj,
+            categorie: Array.isArray(proj.categorie) ? proj.categorie : [],
+          }));
+          setProgetti(progettiConCategorie);
+        } else {
+          setProgetti([]);
+        }
+      } catch (error) {
+        setProgetti([]);
+      } finally {
+        setLoading(false);
+      }
     }
-  }
-  fetchProgetti();
-}, [refreshProjects]);
-
+    fetchProgetti();
+  }, [refreshProjects]);
 
   // Determina quante colonne in base alla larghezza
   const gridCols = currentWidth < 588 ? "1" : currentWidth < 814 ? "2" : "3";
@@ -70,7 +61,9 @@ if (Array.isArray(data)) {
   if (loading) {
     return (
       <div className={`${isDark ? "bg-[#161d3a]" : "bg-slate-50"} p-8`}>
-        <p className={`${isDark ? "text-white" : "text-gray-700"}`}>Caricamento progetti...</p>
+        <p className={`${isDark ? "text-white" : "text-gray-700"}`}>
+          Caricamento progetti...
+        </p>
       </div>
     );
   }
@@ -84,10 +77,15 @@ if (Array.isArray(data)) {
         }}
       >
         {progetti.length === 0 ? (
-          <p className={`${isDark ? "text-white" : "text-gray-700"}`}>Nessun progetto disponibile</p>
+          <p className={`${isDark ? "text-white" : "text-gray-700"}`}>
+            Nessun progetto disponibile
+          </p>
         ) : (
           progetti.map((progetto) => (
-            <ProjectCard key={progetto.id} progetto={progetto} />
+            <ProjectCard
+              key={progetto.id}
+              progetto={progetto}
+            />
           ))
         )}
       </div>
@@ -97,34 +95,77 @@ if (Array.isArray(data)) {
 
 export default ProjectsArea;
 
-interface ProjectCardProps {
-  progetto: ProgettoRaw ;
-}
-
-function ProjectCard({ progetto }: ProjectCardProps) {
+function ProjectCard({ progetto }: { progetto: Progetto }) {
   const { isDark, dropDown, projectWindow } = useGlobalContextProvider();
-  const { setOpenDropDown, setDropDownPosition } = dropDown;
-  const { setOpenCreateProject } = projectWindow;
+  const { setOpenCreateProject, setEditingProject, setRefreshProjects } = projectWindow;
+  const {
+    setOpenDropDown,
+    setDropDownPosition,
+    setSelectedProject,
+    setDropdownContent,
+  } = dropDown;
 
+
+  function handleEdit() {
+    setOpenCreateProject(true);
+    setEditingProject(progetto);
+    setOpenDropDown(false);
+  }
+
+  async function handleDelete() {
+    try {
+      const res = await fetch(`/api/progetti?id=${progetto.id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Errore eliminazione progetto");
+
+      setOpenDropDown(false);
+      setRefreshProjects(prev => !prev);
+    } catch (error) {
+      console.error("Errore eliminazione:", error);
+      alert("Errore eliminazione progetto");
+    }
+  }
   function handleOpenDropDown(
     event: React.MouseEvent<HTMLDivElement, MouseEvent>
   ) {
     event.stopPropagation();
     const xPosition = event.clientX;
     const yPosition = event.clientY;
+
+    setSelectedProject(progetto);
     setOpenDropDown(true);
     setDropDownPosition({ x: xPosition, y: yPosition });
-  }
 
-  function handleOpenCreateProjectWindow() {
-    setOpenCreateProject(true);
+    // Qui puoi settare il contenuto del dropdown (funzionalità da implementare)
+    setDropdownContent(
+      <div className="flex flex-col">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleEdit();
+          }}
+          className="px-3 py-1 hover:bg-gray-200"
+        >
+          Modifica
+        </button>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDelete();
+          }}
+          className="px-3 py-1 hover:bg-red-500 hover:text-white"
+        >
+          Elimina
+        </button>
+      </div>
+    );
   }
 
   return (
     <div
-      className={`${
-        isDark ? "bg-[#161d3a]" : "bg-slate-100"
-      } py-5 rounded-md p-4 text-sm flex flex-col gap-6 relative shadow-sm`}
+      className={`${isDark ? "bg-[#161d3a]" : "bg-slate-100"
+        } py-5 rounded-md p-4 text-sm flex flex-col gap-6 relative shadow-sm`}
     >
       {/* Three dots icon */}
       <div
@@ -147,18 +188,21 @@ function ProjectCard({ progetto }: ProjectCardProps) {
           icon={faProjectDiagram}
         />
         <span
-          onClick={handleOpenCreateProjectWindow}
+          onClick={() => {
+            setOpenCreateProject(true);
+            setEditingProject(null);
+          }}
           className="cursor-pointer hover:text-[#006fb4]"
         >
           {progetto.nome}
         </span>
       </div>
+      {/* ... resto uguale */}
       {/* PROGRESS */}
       <div className="flex flex-col gap-2">
         <div
-          className={`${
-            isDark ? "text-white" : "text-gray-500"
-          } flex justify-between items-center text-[12px]`}
+          className={`${isDark ? "text-white" : "text-gray-500"
+            } flex justify-between items-center text-[12px]`}
         >
           <div className="flex gap-2 items-center">
             <FontAwesomeIcon height={12} width={12} icon={faBarsProgress} />
@@ -171,12 +215,15 @@ function ProjectCard({ progetto }: ProjectCardProps) {
       </div>
       {/* Categories */}
       <div className="flex flex-wrap text-[12px] gap-2 mt-3">
-       {Array.isArray(progetto.categorie) && progetto.categorie.map((cat, index) => (
-  <div key={index} className="bg-gradient-to-tr from-[#2c67f2] to-[#62cff4] p-1 rounded-md text-white px-3">
-    {cat}
-  </div>
-))}
-
+        {Array.isArray(progetto.categorie) &&
+          progetto.categorie.map((cat, index) => (
+            <div
+              key={index}
+              className="bg-gradient-to-tr from-[#2c67f2] to-[#62cff4] p-1 rounded-md text-white px-3"
+            >
+              {String(cat)}
+            </div>
+          ))}
       </div>
     </div>
   );

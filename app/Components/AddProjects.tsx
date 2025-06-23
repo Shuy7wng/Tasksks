@@ -30,21 +30,20 @@ function AddProjects() {
         alert("Errore caricamento categorie. Controlla console.");
       }
     }
-
     fetchCategorie();
   }, []);
 
   useEffect(() => {
-    const calculatePosition = () => {
+    function calculatePosition() {
       const parentWidth = window.innerWidth;
       const parentHeight = window.innerHeight;
+      if (parentWidth < 600) setChildWidth(340);
+      else setChildWidth(590);
+
       const left = (parentWidth - childWidth) / 2;
       const top = (parentHeight - childHeight) / 2;
       setPosition({ left, top });
-
-      if (parentWidth < 600) setChildWidth(340);
-      else setChildWidth(590);
-    };
+    }
 
     calculatePosition();
     window.addEventListener("resize", calculatePosition);
