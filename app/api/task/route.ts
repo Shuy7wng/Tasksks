@@ -1,29 +1,30 @@
-// app/api/task/route.ts
-import { NextRequest, NextResponse } from 'next/server'
-import prisma from '@/lib/prisma'
+import { NextResponse } from "next/server";
 
-export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json()
-    const { nome, priorita, progettoId } = body
+const mockTasks = [
+  { id: 1, name: "Task 1", priority: "alta", progettoId: 1 },
+  { id: 2, name: "Task 2", priority: "media", progettoId: 1 },
+  { id: 3, name: "Task 3", priority: "bassa", progettoId: 2 },
+];
 
-    if (!nome || !priorita || !progettoId) {
-      return NextResponse.json({ error: 'Dati mancanti' }, { status: 400 })
-    }
+// Funzione finta per filtrare i task per progettoId
+function getTasksByProjectId(progettoId: number) {
+  return mockTasks.filter((task) => task.progettoId === progettoId);
+}
 
-    const nuovaTask = await prisma.task.create({
-      data: {
-        nome,
-        priorita,
-        progetto: {
-          connect: { id: progettoId },
-        },
-      },
-    })
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const progettoIdStr = url.searchParams.get("progettoId");
 
-    return NextResponse.json(nuovaTask)
-  } catch (error) {
-    console.error('Errore creazione task:', error)
-    return NextResponse.json({ error: 'Errore interno' }, { status: 500 })
+  if (!progettoIdStr) {
+    return NextResponse.json({ error: "Manca progettoId" }, { status: 400 });
   }
+
+  const progettoId = parseInt(progettoIdStr);
+  if (isNaN(progettoId)) {
+    return NextResponse.json({ error: "progettoId non valido" }, { status: 400 });
+  }
+
+  const tasks = getTasksByProjectId(progettoId);
+
+  return NextResponse.json(tasks);
 }

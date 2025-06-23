@@ -5,28 +5,34 @@ import { useGlobalContextProvider } from "@/app/contextAPI";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsis } from "@fortawesome/free-solid-svg-icons";
 
+interface Categoria {
+  id: number;
+  nome: string;
+}
+
 export function useCategorie() {
-  const [list, setList] = useState<string[]>([])
+  const [list, setList] = useState<Categoria[]>([]);
 
   useEffect(() => {
     async function fetchCategorie() {
       try {
-        const res = await fetch('/api/categorie/initializeDefaults')
-        const data = await res.json()
+        const res = await fetch('/api/categorie');
+        const data = await res.json();
         if (Array.isArray(data)) {
-          setList(data.map((c: any) => c.nome))
+          setList(data); // mettiamo direttamente gli oggetti completi
         } else {
-          setList(['do', 'todo']) // fallback locale se API fallisce
+          // fallback locale: array di oggetti
+          setList([{ id: 1, nome: "do" }, { id: 2, nome: "todo" }]);
         }
       } catch {
-        setList(['do', 'todo'])
+        setList([{ id: 1, nome: "do" }, { id: 2, nome: "todo" }]);
       }
     }
 
-    fetchCategorie()
-  }, [])
+    fetchCategorie();
+  }, []);
 
-  return { list, setList }
+  return { list, setList };
 }
 
 function CategoriesArea() {
@@ -66,19 +72,16 @@ function CategoriesArea() {
         {categorie.list.length === 0 && (
           <p className="text-gray-500">Nessuna categoria disponibile</p>
         )}
-        {categorie.list.map((categoryName, index) => (
-          <CategoriesCard
-            key={index}
-            categoryName={categoryName}
-            onOpenDropDown={handleOpenDropDown}
-            isDark={isDark}
-          />
-        ))}
-      </div>
+        {categorie.list.map((category, index) => (
+  <CategoriesCard
+    key={index}               // uso dell'indice come key
+    categoryName={category.nome}  // passo solo il nome come stringa
+    onOpenDropDown={handleOpenDropDown}
+    isDark={isDark}
+  />
+))}
 
-      {openDropDown && (
-        <DropdownMenu position={dropDownPosition} />
-      )}
+      </div>
     </div>
   );
 }
@@ -110,30 +113,6 @@ function CategoriesCard({ categoryName, onOpenDropDown, isDark }: CategoriesCard
           icon={faEllipsis}
         />
       </div>
-    </div>
-  );
-}
-
-interface DropdownMenuProps {
-  position: { x: number; y: number };
-}
-
-function DropdownMenu({ position }: DropdownMenuProps) {
-  return (
-    <div
-      style={{
-        position: "absolute",
-        top: position.y,
-        left: position.x,
-        backgroundColor: "white",
-        borderRadius: 6,
-        boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
-        padding: "8px 12px",
-        zIndex: 1000,
-      }}
-    >
-      <p className="cursor-pointer hover:bg-gray-100 px-2 py-1 rounded">Modifica</p>
-      <p className="cursor-pointer hover:bg-gray-100 px-2 py-1 rounded">Elimina</p>
     </div>
   );
 }

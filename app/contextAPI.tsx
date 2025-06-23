@@ -19,6 +19,10 @@ interface DropDownPosition {
   x: number;
   y: number;
 }
+interface Categoria {
+  id: number;
+  nome: string;
+}
 
 interface MenuItem {
   name: string;
@@ -58,7 +62,10 @@ interface GlobalContextType {
     refreshProjects: boolean;
     setRefreshProjects: Dispatch<SetStateAction<boolean>>;
   };
-
+  categorie: {
+    list: Categoria[];
+    setList: React.Dispatch<React.SetStateAction<Categoria[]>>;
+  };
   iconBox: {
     openIconBox: boolean;
     setOpenIconBox: (openIconBox: boolean) => void;
@@ -70,11 +77,6 @@ interface GlobalContextType {
 
     dropDownPosition: DropDownPosition;
     setDropDownPosition: Dispatch<SetStateAction<DropDownPosition>>;
-  };
-
-  categorie: {
-    list: string[];
-    setList: Dispatch<SetStateAction<string[]>>;
   };
 
   tasksContext: {
@@ -107,7 +109,7 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
   });
   const [openCreatedProject, setOpenCreateProject] = useState(false);
   const [openTaskWindow, setOpenTaskWindow] = useState(false);
-  const [categorie, setCategorie] = useState<string[]>(["do", "to-do"]);
+  const [categorie, setCategorie] = useState<Categoria[]>([]);
 
   const [tasks, setTasks] = useState<Task[]>([]);
 
@@ -125,18 +127,13 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
       console.error("Errore fetchTasks:", error);
     }
   };
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", isDark);
-  }, [isDark]);
-
   useEffect(() => {
     async function loadCategorie() {
       try {
         const res = await fetch("/api/categorie");
         if (res.ok) {
           const data = await res.json();
-          setCategorie(data.map((cat: any) => cat.nome));
+          setCategorie(data); // array di oggetti {id, nome}
         }
       } catch (err) {
         console.error("Errore caricando categorie", err);
@@ -144,6 +141,11 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     }
     loadCategorie();
   }, []);
+
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", isDark);
+  }, [isDark]);
 
   // Chiude box se cambia menu
   useEffect(() => {
@@ -183,7 +185,7 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
           refreshProjects,
           setRefreshProjects,
         },
-        
+
         iconBox: { openIconBox, setOpenIconBox },
         dropDown: {
           openDropDown,
@@ -195,6 +197,7 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
           list: categorie,
           setList: setCategorie,
         },
+
         tasksContext: {
           tasks,
           setTasks,

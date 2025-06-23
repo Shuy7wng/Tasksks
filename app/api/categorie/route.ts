@@ -1,12 +1,36 @@
-// /app/api/categorie/route.ts (Next.js App Router)
 import { NextResponse } from "next/server";
-
-const categorie = [
-  { id: 1, nome: "Categoria 1" },
-  { id: 2, nome: "Categoria 2" },
-  { id: 3, nome: "Categoria 3" },
-];
+import { prisma } from "@/lib/prisma";
 
 export async function GET() {
-  return NextResponse.json(categorie);
+  try {
+    const categorie = await prisma.categoria.findMany();
+    return NextResponse.json(categorie);
+  } catch (error) {
+    return NextResponse.json({ error: "Errore nel caricamento categorie" }, { status: 500 });
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const { nome } = await request.json();
+
+    if (!nome || nome.trim() === "") {
+      return NextResponse.json({ error: "Nome categoria obbligatorio" }, { status: 400 });
+    }
+
+    // Prova a creare la categoria
+    const nuovaCategoria = await prisma.categoria.create({
+      data: {
+        nome: nome.trim(),
+      },
+    });
+
+    return NextResponse.json(nuovaCategoria, { status: 201 });
+  } catch (error: any) {
+    // Controlla se errore è per violazione chiave unica
+    if (error.code === "P2002") {
+      return NextResponse.json({ error: "Categoria già esistente" }, { status: 409 });
+    }
+    return NextResponse.json({ error: "Errore durante la creazione categoria" }, { status: 500 });
+  }
 }

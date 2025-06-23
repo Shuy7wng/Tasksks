@@ -1,31 +1,41 @@
-// /app/api/progetti/route.ts
 import { NextResponse } from "next/server";
-
-let progetti: { id: number; nome: string; categoriaId: number }[] = [];
+import { prisma } from "@/lib/prisma"; // importa il client prisma
 
 export async function POST(request: Request) {
   try {
-    const data = await request.json();
-    const { nome, categoriaId } = data;
+    const { nome, categoriaId } = await request.json();
 
     if (!nome || !categoriaId) {
       return NextResponse.json({ error: "Nome o categoria mancanti" }, { status: 400 });
     }
 
-    const nuovoProgetto = {
-      id: progetti.length + 1,
-      nome,
-      categoriaId,
-    };
+    // Creo il progetto nel DB
+    const nuovoProgetto = await prisma.progetto.create({
+      data: {
+        nome: nome.trim(),
+        categoriaId: Number(categoriaId),
+      },
+    });
 
-    progetti.push(nuovoProgetto);
-
-    return NextResponse.json(nuovoProgetto);
+    return NextResponse.json(nuovoProgetto, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: "Errore nel body" }, { status: 400 });
+    console.error("Errore creazione progetto:", error);
+    return NextResponse.json({ error: "Errore interno nel server" }, { status: 500 });
   }
 }
 
 export async function GET() {
-  return NextResponse.json(progetti);
+  try {
+    // Legge tutti i progetti, includendo i dati categoria (opzionale)
+    const progetti = await prisma.progetto.findMany({
+      include: {
+        categoria: true, // se vuoi anche info categoria nel risultato
+      },
+    });
+
+    return NextResponse.json(progetti);
+  } catch (error) {
+    console.error("Errore fetching progetti:", error);
+    return NextResponse.json({ error: "Errore caricamento progetti" }, { status: 500 });
+  }
 }

@@ -35,30 +35,37 @@ useEffect(() => {
   return () => window.removeEventListener("resize", calculatePosition);
 }, []);
 
-  const aggiungiCategoria = async () => {
-    if (nomeCategoria.trim() === "") {
-      alert("Inserisci un nome per la categoria");
+const aggiungiCategoria = async () => {
+  if (nomeCategoria.trim() === "") {
+    alert("Inserisci un nome per la categoria");
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/categorie", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nome: nomeCategoria.trim() }),
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      alert("Errore: " + errorData.error);
       return;
     }
 
-    try {
-      // Qui puoi fare la chiamata API POST
-      // Simuliamo risposta con delay e aggiornamento contesto
+    const nuovaCategoria = await res.json();
 
-      // Simulazione API (rimuovi se hai backend)
-      await new Promise((r) => setTimeout(r, 500));
-      const nuovaCategoria = nomeCategoria.trim();
+    // Aggiorna lista nel contesto (inserendo l'oggetto nuovo, non solo stringa)
+    categorie.setList((prev) => [...prev, nuovaCategoria]);
 
-      // Aggiorna lista nel contesto
-      categorie.setList((prev) => [...prev, nuovaCategoria]);
+    setNomeCategoria("");
+    setOpenNewCategorieBox(false);
+  } catch (error) {
+    alert("Errore nella chiamata API: " + (error instanceof Error ? error.message : String(error)));
+  }
+};
 
-      // Pulizia e chiusura
-      setNomeCategoria("");
-      setOpenNewCategorieBox(false);
-    } catch (error) {
-      alert("Errore: " + (error instanceof Error ? error.message : String(error)));
-    }
-  };
 
   if (!openNewCategorieBox) return null;
 
