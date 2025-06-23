@@ -155,8 +155,6 @@ async function deleteProject(projectId: number | string) {
       throw new Error("Errore eliminazione progetto");
     }
 
-    // Se qui siamo, la cancellazione sul DB è riuscita
-    // Aggiorno la lista locale filtrando fuori il progetto eliminato
     setProgetti((oldProgetti) => oldProgetti.filter(p => p.id !== projectId));
   } catch (error) {
     console.error("Errore eliminazione:", error);

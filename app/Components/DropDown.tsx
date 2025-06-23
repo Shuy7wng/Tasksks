@@ -33,15 +33,7 @@ function DropDown({
 
   function handleDelete() {
     if (selectedProject) {
-      if (
-        confirm(
-          `Sei sicuro di voler eliminare "${
-            selectedProject.nome || "questo elemento"
-          }"?`
-        )
-      ) {
-        onDelete(selectedProject);
-      }
+      onDelete(selectedProject);
     }
   }
 
@@ -82,9 +74,8 @@ function DropDown({
     <div
       ref={dropDownRef}
       style={{ left: position.x - 160, top: position.y + 20 }}
-      className={`p-3 w-40 fixed z-50 shadow-md flex rounded-lg flex-col gap-3 text-[13px] ${
-        isDark ? "bg-[#0e1324]" : "bg-white"
-      }`}
+      className={`p-3 w-40 fixed z-50 shadow-md flex rounded-lg flex-col gap-3 text-[13px] ${isDark ? "bg-[#0e1324]" : "bg-white"
+        }`}
     >
       {dropMenuItem.map((menuItem, index) => (
         <div
