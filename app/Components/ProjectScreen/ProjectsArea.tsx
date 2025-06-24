@@ -44,7 +44,7 @@ function ProjectsArea() {
         setProjects(
           (arr as Progetto[]).map((p) => ({
             ...p,
-            categorie: Array.isArray(p.categoria) ? (p.categoria as Categoria[]) : [],
+            categorie: Array.isArray(p.categorie) ? (p.categorie as Categoria[]) : [],
           }))
         );
       } catch {
@@ -164,16 +164,21 @@ function ProjectCard({
         </div>
         <div className="w-full h-[5px] rounded-2xl bg-gray-400 overflow-hidden"></div>
       </div>
+
       <div className="flex flex-wrap text-[12px] gap-2 mt-3">
-       {project.categoria ? (
-         <span className="bg-gradient-to-tr from-[#2c67f2] to-[#62cff4] p-1 rounded-md text-white px-3">
-           {project.categoria.nome}
-        </span>
+        {project.categorie && project.categorie.length > 0 ? (
+          project.categorie.map((cat: Categoria) => (
+            <span
+              key={cat.id}
+              className="bg-gradient-to-tr from-[#2c67f2] to-[#62cff4] p-1 rounded-md text-white px-3"
+            >
+              {cat.nome}
+            </span>
+          ))
         ) : (
-         <span>Nessuna categoria</span>
+          <span>Nessuna categoria</span>
         )}
       </div>
-
     </div>
   );
 }

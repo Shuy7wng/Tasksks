@@ -12,19 +12,17 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
-
 model Categoria {
-  id        Int        @id @default(autoincrement())
-  nome      String     @unique
-  progetti  Progetto[]
+  id        Int         @id @default(autoincrement())
+  nome      String      @unique
+  progetti  Progetto[]  @relation("ProgettiPerCategoria")
 }
 
 model Progetto {
-  id          Int       @id @default(autoincrement())
-  nome        String
-  categoria   Categoria @relation(fields: [categoriaId], references: [id])
-  categoriaId Int
-  tasks       Task[]
+  id         Int         @id @default(autoincrement())
+  nome       String
+  categorie  Categoria[] @relation("ProgettiPerCategoria")
+  tasks      Task[]
 }
 
 model Task {

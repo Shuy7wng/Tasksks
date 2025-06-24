@@ -3,17 +3,21 @@ import { prisma } from "@/lib/prisma"; // importa il client prisma
 
 export async function POST(request: Request) {
   try {
-    const { nome, categoriaId } = await request.json();
+    const { nome, categoriaIds } = await request.json();
 
-    if (!nome || !categoriaId) {
-      return NextResponse.json({ error: "Nome o categoria mancanti" }, { status: 400 });
+    if (!nome || !categoriaIds || !Array.isArray(categoriaIds) || categoriaIds.length === 0) {
+      return NextResponse.json({ error: "Nome o categorie mancanti" }, { status: 400 });
     }
 
-    // Creo il progetto nel DB
     const nuovoProgetto = await prisma.progetto.create({
       data: {
         nome: nome.trim(),
-        categoriaId: Number(categoriaId),
+        categorie: {
+          connect: categoriaIds.map((id: number) => ({ id })),
+        },
+      },
+      include: {
+        categorie: true,
       },
     });
 
@@ -26,25 +30,28 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
-    // Legge tutti i progetti, includendo i dati categoria (opzionale)
     const progetti = await prisma.progetto.findMany({
       include: {
-        categoria: true, // se vuoi anche info categoria nel risultato
+        categorie: true,
       },
     });
 
     return NextResponse.json(progetti);
-  }catch (error) {
-  console.error("Errore fetching progetti:", error);
-  return NextResponse.json({ error: "Errore caricamento progetti", details: error instanceof Error ? error.message : error }, { status: 500 });
+  } catch (error) {
+    console.error("Errore fetching progetti:", error);
+    return NextResponse.json(
+      { error: "Errore caricamento progetti", details: error instanceof Error ? error.message : error },
+      { status: 500 }
+    );
+  }
 }
-}
+
 export async function PUT(request: Request) {
   try {
     const data = await request.json();
-    const { id, nome, categoriaId } = data;
+    const { id, nome, categoriaIds } = data;
 
-    if (!id || !nome || !categoriaId) {
+    if (!id || !nome || !categoriaIds || !Array.isArray(categoriaIds)) {
       return NextResponse.json({ error: "Dati mancanti per aggiornamento" }, { status: 400 });
     }
 
@@ -52,7 +59,12 @@ export async function PUT(request: Request) {
       where: { id: Number(id) },
       data: {
         nome: nome.trim(),
-        categoriaId: Number(categoriaId),
+        categorie: {
+          set: categoriaIds.map((id: number) => ({ id })),
+        },
+      },
+      include: {
+        categorie: true,
       },
     });
 
@@ -62,11 +74,11 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "Errore interno nel server" }, { status: 500 });
   }
 }
+
 export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
-    console.log("DELETE project id:", id);
 
     if (!id) {
       return NextResponse.json({ error: "ID progetto mancante" }, { status: 400 });

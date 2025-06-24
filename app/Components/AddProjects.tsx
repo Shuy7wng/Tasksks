@@ -4,14 +4,20 @@ import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPodcast, faClose } from "@fortawesome/free-solid-svg-icons";
 import { useGlobalContextProvider } from "@/app/contextAPI";
+import MultipleSelectChip from "./Multiselection";
 
 function AddProjects() {
   const [nome, setNome] = useState("");
-  const [categoria, setCategoria] = useState("");
+  const [categoria, setCategoria] = useState<string[]>([]);
   const [categorie, setCategorie] = useState<{ id: number; nome: string }[]>([]);
 
   const { projectWindow, isDark } = useGlobalContextProvider();
-  const { openNewProjectBox, setOpenNewProjectBox, refreshProjects, setRefreshProjects } = projectWindow;
+  const {
+    openNewProjectBox,
+    setOpenNewProjectBox,
+    refreshProjects,
+    setRefreshProjects,
+  } = projectWindow;
 
   const [position, setPosition] = useState({ left: 0, top: 0 });
   const [childWidth, setChildWidth] = useState(590);
@@ -50,19 +56,31 @@ function AddProjects() {
     return () => window.removeEventListener("resize", calculatePosition);
   }, [childWidth]);
 
+  function handleCategorieChange(value: string[]): void {
+    setCategoria(value);
+  }
+
   const handleAggiungiProgetto = async () => {
-    if (!nome.trim() || !categoria) {
-      alert("Inserisci nome e seleziona una categoria.");
+    if (!nome.trim() || categoria.length === 0) {
+      alert("Inserisci nome e seleziona almeno una categoria.");
       return;
     }
 
     try {
+      const categoriaId = categorie.find((c) => c.nome === categoria[0])?.id;
+      if (!categoriaId) {
+        alert("Categoria non valida.");
+        return;
+      }
+
       const res = await fetch("/api/progetti", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           nome,
-          categoriaId: parseInt(categoria, 10),
+          categoriaIds: categoria
+            .map((nomeCat) => categorie.find((c) => c.nome === nomeCat)?.id)
+            .filter((id): id is number => id !== undefined),
         }),
       });
 
@@ -76,7 +94,7 @@ function AddProjects() {
       console.log("Progetto salvato:", data);
 
       setNome("");
-      setCategoria("");
+      setCategoria([]);
       setOpenNewProjectBox(false);
       setRefreshProjects((prev) => !prev);
     } catch (err) {
@@ -97,7 +115,9 @@ function AddProjects() {
           left: sidebarWidth,
           width: `calc(100vw - ${sidebarWidth}px)`,
           height: "100vh",
-          backgroundColor: isDark ? "rgba(14, 19, 36, 0.3)" : "rgba(0,0,0,0.15)",
+          backgroundColor: isDark
+            ? "rgba(14, 19, 36, 0.3)"
+            : "rgba(0,0,0,0.15)",
           zIndex: 30,
           pointerEvents: "none",
         }}
@@ -132,9 +152,8 @@ function AddProjects() {
             <input
               value={nome}
               onChange={(e) => setNome(e.target.value)}
-              className={`border w-full border-gray-200 outline-none p-3 rounded-md text-[12px] ${
-                isDark ? "bg-[#161d3a]" : "bg-white"
-              }`}
+              className={`border w-full border-gray-200 outline-none p-3 rounded-md text-[12px] ${isDark ? "bg-[#161d3a]" : "bg-white"
+                }`}
               placeholder="Dai un nome al tuo progetto..."
             />
             <FontAwesomeIcon
@@ -148,21 +167,10 @@ function AddProjects() {
 
         {/* Categoria */}
         <div className="flex flex-col gap-2 mt-8 mx-3">
-          <span className="text-sm opacity-80">Categoria</span>
-          <select
-            value={categoria}
-            onChange={(e) => setCategoria(e.target.value)}
-            className={`p-3 cursor-pointer text-[13px] outline-none border rounded-md border-gray-200 ${
-              isDark ? "bg-[#161d3a]" : "bg-white opacity-60"
-            }`}
-          >
-            <option value="">Seleziona una categoria</option>
-            {categorie.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.nome}
-              </option>
-            ))}
-          </select>
+          <MultipleSelectChip
+            selectedCategories={categorie}
+            onSelectionChange={handleCategorieChange}
+          />
         </div>
 
         {/* Bottone */}
