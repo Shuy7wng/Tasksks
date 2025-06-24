@@ -19,11 +19,11 @@ model Progetto {
   categorie Categoria[] // relazione many-to-many implicita
   tasks     Task[]
 }
-
 model Task {
   id         Int      @id @default(autoincrement())
   nome       String
   priorita   String
+  done       Boolean  @default(false)
   progetto   Progetto @relation(fields: [progettoId], references: [id], onDelete: Cascade)
   progettoId Int
 }

@@ -42,22 +42,14 @@ function ProjectWindow() {
       >
         <TaskWindow progettoId={Number(selectedProject.id)} />
         {/* Header con info progetto */}
-        <div className="p-4 bg-gradient-to-tr from-[#2c67f2] to-[#62cff4] flex items-center justify-between px-4 rounded-t-lg">
-          <div className="flex flex-col text-white">
-            <span className="font-semibold text-xl">{selectedProject.nome}</span>
-            <span className="font-light text-xs">
-              {/* se vuoi mostrare numero task, magari lo calcoli in TasksArea o tramite API */}
-              Tasks per questo progetto
-            </span>
-          </div>
+        <div className="relative p-6 bg-gradient-to-tr from-[#2c67f2] to-[#62cff4] flex items-center justify-center px-4 rounded-t-lg">
+          <span className="font-semibold text-3xl text-white">{selectedProject.nome}</span>
           <FontAwesomeIcon
             onClick={() => setOpenCreateProject(false)}
-            className="text-white opacity-80 cursor-pointer text-sm"
+            className="text-white opacity-80 cursor-pointer text-lg absolute right-4"
             icon={faClose}
           />
         </div>
-          
-        {/* Corpo con TasksArea, passa il progettoId dinamico */}
         <div className="p-4 overflow-y-auto flex-1">
           <TasksArea progettoId={Number(selectedProject.id)} />
         </div>
@@ -65,6 +57,5 @@ function ProjectWindow() {
     </>
   );
 }
-
 
 export default ProjectWindow;

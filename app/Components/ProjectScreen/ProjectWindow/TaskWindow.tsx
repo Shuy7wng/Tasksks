@@ -94,10 +94,10 @@ function TaskWindow({ progettoId }: Props) {
             disabled={loading}
           >
             <option value="">Seleziona la priorità</option>
-            <option value="opzionale">Opzionale</option>
-            <option value="chill">Chill</option>
-            <option value="dafare">Da fare</option>
-            <option value="urgente">URGENTE</option>
+            <option value="Opzionale">Opzionale</option>
+            <option value="Chill">Chill</option>
+            <option value="Da-fare">Da fare</option>
+            <option value="URGENTE">URGENTE</option>
           </select>
         </div>
 
