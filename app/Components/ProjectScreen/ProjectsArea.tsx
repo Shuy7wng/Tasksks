@@ -1,37 +1,23 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Progetto, useGlobalContextProvider, Categoria } from "@/app/contextAPI";
+import { Progetto, Categoria, useGlobalContextProvider } from "@/app/contextAPI";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faProjectDiagram,
-  faBarsProgress,
-  faEllipsis,
-} from "@fortawesome/free-solid-svg-icons";
+import { faProjectDiagram, faBarsProgress, faEllipsis } from "@fortawesome/free-solid-svg-icons";
 import DropDown from "../DropDown";
 
 function ProjectsArea() {
   const { isDark, dropDown, projectWindow } = useGlobalContextProvider();
   const { refreshProjects } = projectWindow;
+  const { openDropDown, setOpenDropDown, dropDownPosition, setDropDownPosition, selectedItem, setSelectedItem } = dropDown;
 
-  const {
-    openDropDown,
-    setOpenDropDown,
-    dropDownPosition,
-    setDropDownPosition,
-    selectedItem,
-    setSelectedItem,
-  } = dropDown;
-
-  const [currentWidth, setCurrentWidth] = useState<number>(window.innerWidth);
+  const [windowWidth, setWindowWidth] = useState<number>(typeof window !== "undefined" ? window.innerWidth : 1024);
   const [projects, setProjects] = useState<Progetto[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    function onResize() {
-      setCurrentWidth(window.innerWidth);
-    }
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
@@ -42,9 +28,9 @@ function ProjectsArea() {
         const data = await res.json();
         const arr = Array.isArray(data) ? data : data?.progetti || [];
         setProjects(
-          (arr as Progetto[]).map((p) => ({
+          (arr as Progetto[]).map(p => ({
             ...p,
-            categorie: Array.isArray(p.categorie) ? (p.categorie as Categoria[]) : [],
+            categorie: Array.isArray(p.categorie) ? p.categorie as Categoria[] : [],
           }))
         );
       } catch {
@@ -56,41 +42,69 @@ function ProjectsArea() {
     fetchProjects();
   }, [refreshProjects]);
 
-  const cols = currentWidth < 588 ? 1 : currentWidth < 814 ? 2 : 3;
+  // Definisce numero colonne responsive
+  const cols = windowWidth < 588 ? 1 : windowWidth < 814 ? 2 : 3;
 
   function handleEdit(proj: Progetto) {
-    projectWindow.setOpenCreateProject(true);
     projectWindow.setEditingProject(proj);
+    projectWindow.setOpenCreateProject(true);
     setOpenDropDown(false);
   }
 
-  async function handleDelete(proj: Progetto) {
-    try {
-      const res = await fetch(`/api/progetti?id=${proj.id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error();
-      setOpenDropDown(false);
-      projectWindow.setRefreshProjects((v) => !v);
-    } catch {
-      alert("Errore eliminazione progetto");
+async function handleDelete(proj: Progetto) {
+  try {
+    const res = await fetch(`/api/progetti?id=${proj.id}`, { method: "DELETE" });
+
+    if (!res.ok) {
+      // Proviamo a recuperare un JSON, ma se non c'è lo leggiamo come testo
+      let errBody: any;
+      try {
+        errBody = await res.json();
+      } catch {
+        const text = await res.text();
+        errBody = { message: text || "Nessun dettaglio fornito" };
+      }
+
+      console.error(
+        "Errore server eliminar progetto:",
+        res.status,
+        res.statusText,
+        errBody
+      );
+      alert(
+        `Errore eliminazione progetto (${res.status}): ${
+          errBody.error || errBody.message || res.statusText
+        }`
+      );
+      return;
     }
+
+    // Se arrivi qui, il delete è andato a buon fine
+    setOpenDropDown(false);
+    projectWindow.setRefreshProjects((v) => !v);
+
+  } catch (networkError) {
+    console.error("Network error during delete:", networkError);
+    alert("Errore di rete durante l'eliminazione del progetto");
   }
+}
+
 
   return (
     <div className={`${isDark ? "bg-[#161d3a]" : "bg-slate-50"} p-8`}>
       <div
-        className={`${isDark ? "bg-[#0e1324]" : "bg-white"
-          } grid gap-4 p-6 rounded-md py-8 shadow-2xl`}
-        style={{ gridTemplateColumns: `repeat(${cols}, minmax(0,1fr))` }}
+        className={`${isDark ? "bg-[#0e1324]" : "bg-white"} grid gap-4 p-6 rounded-md py-8 shadow-2xl`}
+        style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
       >
-        {projects.length === 0 ? (
-          <p className={`${isDark ? "text-white" : "text-gray-700"}`}>
-            Nessun progetto disponibile
-          </p>
+        {loading ? (
+          <p className={`${isDark ? "text-white" : "text-gray-700"}`}>Caricamento progetti...</p>
+        ) : projects.length === 0 ? (
+          <p className={`${isDark ? "text-white" : "text-gray-700"}`}>Nessun progetto disponibile</p>
         ) : (
-          projects.map((project) => (
+          projects.map(proj => (
             <ProjectCard
-              key={project.id}
-              project={project}
+              key={proj.id}
+              project={proj}
               onEdit={handleEdit}
               onDelete={handleDelete}
             />
@@ -122,7 +136,8 @@ function ProjectCard({
   onEdit: (p: Progetto) => void;
   onDelete: (p: Progetto) => void;
 }) {
-  const { isDark, dropDown } = useGlobalContextProvider();
+  const { isDark, dropDown, projectWindow } = useGlobalContextProvider();
+  const { setOpenCreateProject, setSelectedProject } = projectWindow;
   const { setOpenDropDown, setDropDownPosition, setSelectedItem } = dropDown;
 
   function openMenu(e: React.MouseEvent<HTMLDivElement>) {
@@ -132,10 +147,14 @@ function ProjectCard({
     setOpenDropDown(true);
   }
 
+  function handleOpenProjectWindow() {
+    setSelectedProject(project);
+    setOpenCreateProject(true);
+  }
+
   return (
     <div
-      className={`${isDark ? "bg-[#161d3a]" : "bg-slate-100"
-        } py-5 rounded-md p-4 text-sm flex flex-col gap-6 relative shadow-sm`}
+      className={`${isDark ? "bg-[#161d3a]" : "bg-slate-100"} py-5 rounded-md p-4 text-sm flex flex-col gap-6 relative shadow-sm`}
     >
       <div
         onClick={openMenu}
@@ -149,7 +168,11 @@ function ProjectCard({
           icon={faProjectDiagram}
           className="bg-[#2c67f2] p-2 text-white rounded-full w-[12px] h-[12px]"
         />
-        <span className="cursor-pointer hover:text-[#006fb4]">
+        <span
+          onClick={handleOpenProjectWindow}
+          className="cursor-pointer hover:text-[#006fb4]"
+          title="Apri progetto"
+        >
           {project.nome}
         </span>
       </div>
@@ -166,7 +189,7 @@ function ProjectCard({
       </div>
 
       <div className="flex flex-wrap text-[12px] gap-2 mt-3">
-        {project.categorie && project.categorie.length > 0 ? (
+        {project.categorie.length > 0 ? (
           project.categorie.map((cat: Categoria) => (
             <span
               key={cat.id}

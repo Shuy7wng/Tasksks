@@ -19,13 +19,18 @@ export interface DropDownPosition {
   x: number;
   y: number;
 }
-
+export interface Task {
+  id: number;
+  nome: string;
+  priorita: string;
+}
 export interface Categoria {
   id: number;
   nome: string;
 }
 
 export interface Progetto {
+  [x: string]: any;
   id: string | number;
   nome: string;
   categoria?: Categoria;
@@ -37,14 +42,8 @@ interface MenuItem {
   isSelected: boolean;
 }
 
-interface Task {
-  id: number;
-  name: string;
-  priority: string;
-}
-
 interface GlobalContextType {
-   progetti: Progetto[];
+  progetti: Progetto[];
   setProgetti: Dispatch<SetStateAction<Progetto[]>>;
   isDark: boolean;
   setIsDark: (isDark: boolean) => void;
@@ -58,20 +57,32 @@ interface GlobalContextType {
     menuItems: MenuItem[];
     setMenuItems: Dispatch<SetStateAction<MenuItem[]>>;
   };
-
+tasksContext: {
+    tasks: Task[];
+    setTasks: Dispatch<SetStateAction<Task[]>>;
+    fetchTasks: (projectId: number) => Promise<void>;
+  };
   projectWindow: {
     openNewProjectBox: boolean;
     setOpenNewProjectBox: (openNewProjectBox: boolean) => void;
+
     openCreatedProject: boolean;
     setOpenCreateProject: (openCreateProject: boolean) => void;
+
     openTaskWindow: boolean;
     setOpenTaskWindow: (openTaskWindow: boolean) => void;
+
     openNewCategorieBox: boolean;
     setOpenNewCategorieBox: (openNewCategorieBox: boolean) => void;
+
     refreshProjects: boolean;
     setRefreshProjects: Dispatch<SetStateAction<boolean>>;
+
     editingProject: Progetto | null;
     setEditingProject: Dispatch<SetStateAction<Progetto | null>>;
+
+    selectedProject: Progetto | null;
+    setSelectedProject: Dispatch<SetStateAction<Progetto | null>>;
   };
 
   categorie: {
@@ -89,17 +100,12 @@ interface GlobalContextType {
     setOpenDropDown: (openDropDown: boolean) => void;
     dropDownPosition: DropDownPosition;
     setDropDownPosition: Dispatch<SetStateAction<DropDownPosition>>;
-selectedItem: any; // oppure Progetto | Categoria
-setSelectedItem: Dispatch<SetStateAction<any>>;
+    selectedItem: any; // oppure Progetto | Categoria
+    setSelectedItem: Dispatch<SetStateAction<any>>;
     dropdownContent: React.ReactNode;
     setDropdownContent: Dispatch<SetStateAction<React.ReactNode>>;
   };
-  tasksContext: {
-    tasks: Task[];
-    setTasks: Dispatch<SetStateAction<Task[]>>;
-    fetchTasks: (projectId: number) => Promise<void>;
-  };
-   
+
   // Funzioni per modificare ed eliminare progetto
   editProject: (project: Progetto) => void;
   deleteProject: (projectId: number | string) => void;
@@ -130,52 +136,59 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
   const [openCreatedProject, setOpenCreateProject] = useState(false);
   const [openTaskWindow, setOpenTaskWindow] = useState(false);
   const [categorie, setCategorie] = useState<Categoria[]>([]);
-const [selectedItem, setSelectedItem] = useState<any>(null); // oppure usa Progetto | Categoria
+  const [selectedItem, setSelectedItem] = useState<any>(null); // oppure usa Progetto | Categoria
 
   const [dropdownContent, setDropdownContent] = useState<React.ReactNode>(null);
   const [editingProject, setEditingProject] = useState<Progetto | null>(null);
-  const [progetti, setProgetti] = useState<Progetto[]>([]); 
+  const [progetti, setProgetti] = useState<Progetto[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [selectedProject, setSelectedProject] = useState<Progetto | null>(null);
 
   // Funzione per modificare progetto
   function editProject(project: Progetto) {
-    console.log("Modifica progetto nel context:", project);projectWindow 
+    console.log("Modifica progetto nel context:", project); projectWindow
     // Qui puoi aggiungere la logica per aggiornare la lista progetti,
     // oppure fare una chiamata API per salvare le modifiche
   }
 
-async function deleteProject(projectId: number | string) {
-  console.log("Elimina progetto nel context con id:", projectId);
-  
-  try {
-    const res = await fetch(`/api/progetti?id=${projectId}`, {
-      method: "DELETE",
-    });
+  async function deleteProject(projectId: number | string) {
+    console.log("Elimina progetto nel context con id:", projectId);
 
-    if (!res.ok) {
-      throw new Error("Errore eliminazione progetto");
+    try {
+      const res = await fetch(`/api/progetti?id=${projectId}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        throw new Error("Errore eliminazione progetto");
+      }
+
+      setProgetti((oldProgetti) => oldProgetti.filter(p => p.id !== projectId));
+    } catch (error) {
+      console.error("Errore eliminazione:", error);
+      alert("Errore durante l'eliminazione del progetto.");
     }
-
-    setProgetti((oldProgetti) => oldProgetti.filter(p => p.id !== projectId));
+  }
+  // fetchTasks da usare nel context
+async function fetchTasks(progettoId: number) {
+  try {
+    // Passiamo correttamente il parametro 'progettoId'
+    const res = await fetch(`/api/task?progettoId=${progettoId}`);
+    if (res.ok) {
+      const data = await res.json();
+      const mappedTasks = data.map((t: any): Task => ({
+        id: t.id,
+        nome: t.nome,
+        priorita: t.priorita,
+      }));
+      setTasks(mappedTasks);
+    } else {
+      console.error("Errore fetchTasks: ", res.statusText);
+    }
   } catch (error) {
-    console.error("Errore eliminazione:", error);
-    alert("Errore durante l'eliminazione del progetto.");
+    console.error("Errore fetchTasks:", error);
   }
 }
-  // fetchTasks da usare nel context
-  const fetchTasks = async (projectId: number) => {
-    try {
-      const res = await fetch(`/api/task?progettoId=${projectId}`);
-      if (res.ok) {
-        const data = await res.json();
-        setTasks(data);
-      } else {
-        console.error("Errore fetchTasks: ", res.statusText);
-      }
-    } catch (error) {
-      console.error("Errore fetchTasks:", error);
-    }
-  };
 
   useEffect(() => {
     async function loadCategorie() {
@@ -218,26 +231,37 @@ async function deleteProject(projectId: number | string) {
   const dropDown = {
     openDropDown,
     setOpenDropDown,
+
     dropDownPosition,
     setDropDownPosition,
-selectedItem,
-setSelectedItem,
+
+    selectedItem,
+    setSelectedItem,
+
     dropdownContent,
     setDropdownContent,
   };
   const projectWindow = {
     openNewProjectBox,
     setOpenNewProjectBox,
+
     openCreatedProject,
     setOpenCreateProject,
+
     openTaskWindow,
     setOpenTaskWindow,
+
     openNewCategorieBox,
     setOpenNewCategorieBox,
+
     refreshProjects,
     setRefreshProjects,
+
     editProject,
     setEditingProject,
+
+    selectedProject,
+    setSelectedProject,
   };
 
   return (
@@ -247,22 +271,29 @@ setSelectedItem,
         setIsDark,
         sideBar: { openSideBar, setOpenSideBar },
         dashboardItems: { menuItems, setMenuItems },
-projectWindow: {
-        openNewProjectBox,
-        setOpenNewProjectBox,
-        openCreatedProject,
-        setOpenCreateProject,
-        openTaskWindow,
-        setOpenTaskWindow,
-        openNewCategorieBox,
-        setOpenNewCategorieBox,
-        refreshProjects,
-        setRefreshProjects,
-        editingProject,
-        setEditingProject,
-      },
-        progetti,     // qui
-      setProgetti,  // qui
+        projectWindow: {
+          openNewProjectBox,
+          setOpenNewProjectBox,
+          openCreatedProject,
+          setOpenCreateProject,
+          
+          openTaskWindow,
+          setOpenTaskWindow,
+          
+          openNewCategorieBox,
+          setOpenNewCategorieBox,
+          
+          refreshProjects,
+          setRefreshProjects,
+          
+          selectedProject,
+          setSelectedProject,
+          
+          editingProject,
+          setEditingProject,
+        },
+        progetti,
+        setProgetti,
 
         iconBox: { openIconBox, setOpenIconBox },
         dropDown,

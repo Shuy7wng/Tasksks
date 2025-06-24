@@ -1,30 +1,48 @@
 import { NextResponse } from "next/server";
-
-const mockTasks = [
-  { id: 1, name: "Task 1", priority: "alta", progettoId: 1 },
-  { id: 2, name: "Task 2", priority: "media", progettoId: 1 },
-  { id: 3, name: "Task 3", priority: "bassa", progettoId: 2 },
-];
-
-// Funzione finta per filtrare i task per progettoId
-function getTasksByProjectId(progettoId: number) {
-  return mockTasks.filter((task) => task.progettoId === progettoId);
-}
+import { prisma } from "@/lib/prisma";
 
 export async function GET(request: Request) {
-  const url = new URL(request.url);
-  const progettoIdStr = url.searchParams.get("progettoId");
+  const { searchParams } = new URL(request.url);
+  const progettoId = searchParams.get("progettoId");
 
-  if (!progettoIdStr) {
-    return NextResponse.json({ error: "Manca progettoId" }, { status: 400 });
+  if (!progettoId) {
+    return NextResponse.json({ error: "progettoId mancante" }, { status: 400 });
   }
 
-  const progettoId = parseInt(progettoIdStr);
-  if (isNaN(progettoId)) {
-    return NextResponse.json({ error: "progettoId non valido" }, { status: 400 });
+  try {
+    const tasks = await prisma.task.findMany({
+      where: {
+        progettoId: Number(progettoId),
+      },
+    });
+    return NextResponse.json(tasks);
+  } catch (error) {
+    console.error("Errore fetch tasks:", error);
+    return NextResponse.json({ error: "Errore interno" }, { status: 500 });
   }
+}
 
-  const tasks = getTasksByProjectId(progettoId);
+export async function POST(request: Request) {
+  try {
+    const { nome, priorita, progettoId } = await request.json();
 
-  return NextResponse.json(tasks);
+    // Validazione semplice
+    if (!nome || !priorita || !progettoId) {
+      return NextResponse.json({ error: "Campi mancanti" }, { status: 400 });
+    }
+
+    // Creazione task
+    const nuovaTask = await prisma.task.create({
+      data: {
+        nome,
+        priorita,
+        progettoId: Number(progettoId),
+      },
+    });
+
+    return NextResponse.json(nuovaTask, { status: 201 });
+  } catch (error) {
+    console.error("Errore durante la creazione della task:", error);
+    return NextResponse.json({ error: "Errore interno del server" }, { status: 500 });
+  }
 }
