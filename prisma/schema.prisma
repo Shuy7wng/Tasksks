@@ -7,23 +7,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Categoria {
+model categoria {
   id       Int        @id @default(autoincrement())
-  nome     String     @unique
-  progetti Progetto[] // relazione many-to-many implicita
+  nome     String     @unique(map: "Categoria_nome_key")
+  progetto progetto[] @relation("categoriatoprogetto")
 }
 
-model Progetto {
+model progetto {
   id        Int         @id @default(autoincrement())
   nome      String
-  categorie Categoria[] // relazione many-to-many implicita
-  tasks     Task[]
+  task      task[]
+  categoria categoria[] @relation("categoriatoprogetto")
 }
-model Task {
+
+model task {
   id         Int      @id @default(autoincrement())
   nome       String
   priorita   String
-  done       Boolean  @default(false)
-  progetto   Progetto @relation(fields: [progettoId], references: [id], onDelete: Cascade)
   progettoId Int
+  done       Boolean  @default(false)
+  progetto   progetto @relation(fields: [progettoId], references: [id], onDelete: Cascade, map: "Task_progettoId_fkey")
+
+  @@index([progettoId], map: "Task_progettoId_fkey")
 }

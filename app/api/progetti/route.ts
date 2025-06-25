@@ -20,11 +20,11 @@ export async function POST(request: Request) {
     const nuovoProgetto = await prisma.progetto.create({
       data: {
         nome: nome.trim(),
-        categorie: {
+        categoria: {
           connect: categoriaIds.map((id: number) => ({ id })),
         },
       },
-      include: { categorie: true },
+      include: { categoria: true },
     });
 
     return NextResponse.json(nuovoProgetto, { status: 201 });
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
 export async function GET() {
   try {
     const progetti = await prisma.progetto.findMany({
-      include: { categorie: true },
+      include: { categoria: true },
     });
     return NextResponse.json(progetti);
   } catch (error) {
@@ -71,11 +71,11 @@ export async function PUT(request: Request) {
       where: { id: parsedId },
       data: {
         nome: nome.trim(),
-        categorie: {
+        categoria: {
           set: categoriaIds.map((id: number) => ({ id })),
         },
       },
-      include: { categorie: true },
+      include: { categoria: true },
     });
 
     return NextResponse.json(progettoAggiornato);
