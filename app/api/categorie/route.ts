@@ -6,9 +6,11 @@ export async function GET() {
     const categorie = await prisma.categoria.findMany();
     return NextResponse.json(categorie);
   } catch (error) {
+    console.error("Errore in GET /api/categorie:", error);
     return NextResponse.json({ error: "Errore nel caricamento categorie" }, { status: 500 });
   }
 }
+
 
 export async function POST(request: Request) {
   try {
