@@ -24,6 +24,7 @@ export function useCategorie() {
         setList([]);
       }
     }
+
     fetchCategorie();
   }, []);
 
@@ -41,9 +42,14 @@ function CategoriesArea() {
     setSelectedItem: setCatSelected,
   } = categoryDropDown;
 
-  const [width, setWidth] = useState<number>(typeof window !== "undefined" ? window.innerWidth : 0);
+  const [width, setWidth] = useState<number>(
+    typeof window !== "undefined" ? window.innerWidth : 0
+  );
+
   useEffect(() => {
-    function onResize() { setWidth(window.innerWidth); }
+    function onResize() {
+      setWidth(window.innerWidth);
+    }
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
@@ -58,10 +64,12 @@ function CategoriesArea() {
   async function handleDelete(proj: Progetto) {
     const cat = { id: proj.id, nome: proj.nome };
     try {
-      const res = await fetch(`/api/categorie?id=${cat.id}`, { method: "DELETE" });
+      const res = await fetch(`/api/categorie?id=${cat.id}`, {
+        method: "DELETE",
+      });
       if (!res.ok) throw new Error();
       setCatMenuOpen(false);
-      categorie.setList(prev => prev.filter(c => c.id !== cat.id));
+      categorie.setList((prev) => prev.filter((c) => c.id !== cat.id));
     } catch {
       alert("Errore eliminazione categoria");
     }
@@ -75,19 +83,26 @@ function CategoriesArea() {
   }
 
   return (
-    <div className={`${isDark ? "bg-[#161d3a]" : "bg-slate-50"} p-8`}> 
-      <div className={`grid gap-4 p-6 rounded-md py-8 shadow-2xl ${isDark ? "bg-[#0e1324]" : "bg-white"}`}>
+    <div className={`${isDark ? "bg-[#161d3a]" : "bg-slate-50"} p-8`}>
+      <div
+        className={`grid gap-4 p-6 rounded-md py-8 shadow-2xl ${
+          isDark ? "bg-[#0e1324]" : "bg-white"
+        }`}
+      >
         {categorie.list.length === 0 && (
-          <p className={`${isDark ? "text-white" : "text-gray-700"}`}>Nessuna categoria disponibile</p>
+          <p className={`${isDark ? "text-white" : "text-gray-700"}`}>
+            Nessuna categoria disponibile
+          </p>
         )}
-        {categorie.list.map(cat => (
+
+        {categorie.list.map((cat) => (
           <div
             key={cat.id}
             className={`${isDark ? "bg-[#161d3a]" : "bg-slate-100"} shadow-sm p-4 flex justify-between items-center rounded-md`}
           >
             <span className="font-semibold">{cat.nome}</span>
             <div
-              onClick={e => handleOpen(e, cat)}
+              onClick={(e) => handleOpen(e, cat)}
               className="p-1 hover:bg-gray-200 rounded-full cursor-pointer"
             >
               <FontAwesomeIcon icon={faEllipsis} className="text-gray-500" />
@@ -95,6 +110,7 @@ function CategoriesArea() {
           </div>
         ))}
       </div>
+
       <DropDown<Progetto>
         open={openCatMenu}
         position={catMenuPos}

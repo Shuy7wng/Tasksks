@@ -22,12 +22,12 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const { nome, priorita, progettoId, fatto = false } = await request.json();
+    const { nome, priorita, progettoId, done = false } = await request.json();
     if (!nome || !priorita || !progettoId) {
       return NextResponse.json({ error: "Campi mancanti" }, { status: 400 });
     }
     const nuovaTask = await prisma.task.create({
-      data: { nome, priorita, progettoId: Number(progettoId), fatto },
+      data: { nome, priorita, progettoId: Number(progettoId), done },
     });
     return NextResponse.json(nuovaTask, { status: 201 });
   } catch (error) {
@@ -39,14 +39,14 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    const { id, fatto } = await request.json();
+    const { id, done } = await request.json();
     const parsedId = Number(id);
     if (isNaN(parsedId)) {
       return NextResponse.json({ error: "ID task non valido" }, { status: 400 });
     }
     const updated = await prisma.task.update({
       where: { id: parsedId },
-      data: { fatto: Boolean(fatto) },
+      data: { done: Boolean(done) },
     });
     return NextResponse.json(updated);
   } catch (error) {

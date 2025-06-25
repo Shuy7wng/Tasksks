@@ -1,2 +1,2 @@
 -- AlterTable
-ALTER TABLE `task` ADD COLUMN `fatto` BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE `task` ADD COLUMN `done` BOOLEAN NOT NULL DEFAULT false;

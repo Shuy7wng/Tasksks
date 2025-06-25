@@ -4,6 +4,7 @@ import Sidebar from "./Components/Sidebar";
 import { useGlobalContextProvider } from "./contextAPI";
 import Projects from "./Components/ProjectScreen/Projects";
 import Categories from "./Components/CategoriesScreen/Categories";
+import 'dotenv/config';
 
 export default function Page() {
   const { isDark, sideBar, dashboardItems } = useGlobalContextProvider();
@@ -13,8 +14,8 @@ export default function Page() {
     return <div className="p-10 text-center">Loading dashboard...</div>;
   }
 
-  const { openSideBar, setOpenSideBar } = sideBar;
-  const { menuItems, setMenuItems } = dashboardItems;
+  const { openSideBar } = sideBar;
+  const { menuItems } = dashboardItems;
 
   const selectedItem = menuItems.find((item) => item.isSelected);
   let selectedComponent = null;

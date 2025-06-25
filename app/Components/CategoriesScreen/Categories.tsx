@@ -1,119 +1,51 @@
-"use client";
-
-import React, { useEffect, useState } from "react";
-import { useGlobalContextProvider, Categoria } from "@/app/contextAPI";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEllipsis } from "@fortawesome/free-solid-svg-icons";
+import React from "react";
+import CategorieTopBar from "./CategoriesTopBar";
+import CategoriesArea from "./CategoriesArea";
 import DropDown from "../DropDown";
+import AddCategorie from "../AddCategories";
+import { useGlobalContextProvider } from "@/app/contextAPI";
 
-interface Progetto {
-  id: number;
-  nome: string;
-}
+function Categories() {
+  const { isDark, categoryDropDown } = useGlobalContextProvider();
 
-function categoriaToProgetto(cat: Categoria): Progetto {
-  return { id: cat.id, nome: cat.nome };
-}
-
-function progettoToCategoria(proj: Progetto): Categoria {
-  return { id: proj.id, nome: proj.nome };
-}
-
-export function useCategorie() {
-  const [list, setList] = useState<Categoria[]>([]);
-
-  useEffect(() => {
-    async function fetchCategorie() {
-      try {
-        const res = await fetch("/api/categorie");
-        const data = await res.json();
-        setList(Array.isArray(data) ? data : []);
-      } catch {
-        setList([]);
-      }
-    }
-    fetchCategorie();
-  }, []);
-
-  return { list, setList };
-}
-
-function CategoriesArea() {
-  const { isDark, categorie, categoryDropDown } = useGlobalContextProvider();
   const {
-    open: openCatMenu,
-    setOpen: setCatMenuOpen,
-    position: catMenuPos,
-    selectedItem: selectedCat,
-    setPosition: setCatMenuPos,
-    setSelectedItem: setCatSelected,
+    open: openDropDown,
+    setOpen: setOpenDropDown,
+    position: dropDownPosition,
+    selectedItem,
+    setSelectedItem,
   } = categoryDropDown;
 
-  const [width, setWidth] = useState<number>(typeof window !== "undefined" ? window.innerWidth : 0);
-  useEffect(() => {
-    function onResize() { setWidth(window.innerWidth); }
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
-
-  function handleOpen(event: React.MouseEvent<HTMLDivElement>, cat: Categoria) {
-    event.stopPropagation();
-    setCatSelected(cat);
-    setCatMenuPos({ x: event.clientX, y: event.clientY });
-    setCatMenuOpen(true);
+  function handleClose() {
+    setOpenDropDown(false);
   }
 
-  async function handleDelete(proj: Progetto) {
-    const cat = progettoToCategoria(proj);
-    try {
-      const res = await fetch(`/api/categorie?id=${cat.id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error();
-      setCatMenuOpen(false);
-      categorie.setList(prev => prev.filter(c => c.id !== cat.id));
-    } catch {
-      alert("Errore eliminazione categoria");
-    }
+  function handleEdit(category: any) {
+    console.log("Modifica categoria:", category);
+    setOpenDropDown(false);
   }
 
-  function handleEdit(proj: Progetto) {
-    const cat = progettoToCategoria(proj);
-    console.log("Modifica categoria", cat);
-    setCatMenuOpen(false);
-    // apri modale modifica
+  function handleDelete(category: any) {
+    console.log("Elimina categoria:", category);
+    setOpenDropDown(false);
   }
 
   return (
-    <div className={`${isDark ? "bg-[#161d3a]" : "bg-slate-50"} p-8`}> 
-      <div className={`grid gap-4 p-6 rounded-md py-8 shadow-2xl ${isDark ? "bg-[#0e1324]" : "bg-white"}`}>
-        {categorie.list.length === 0 && (
-          <p className={`${isDark ? "text-white" : "text-gray-700"}`}>Nessuna categoria disponibile</p>
-        )}
-        {categorie.list.map(cat => (
-          <div
-            key={cat.id}
-            className={`${isDark ? "bg-[#161d3a]" : "bg-slate-100"} shadow-sm p-4 flex justify-between items-center rounded-md`}
-          >
-            <span className="font-semibold">{cat.nome}</span>
-            <div
-              onClick={e => handleOpen(e, cat)}
-              className="p-1 hover:bg-gray-200 rounded-full cursor-pointer"
-            >
-              <FontAwesomeIcon icon={faEllipsis} className="text-gray-500" />
-            </div>
-          </div>
-        ))}
-      </div>
-      <DropDown<Progetto>
-        open={openCatMenu}
-        position={catMenuPos}
-        onClose={() => setCatMenuOpen(false)}
-        selectedItem={selectedCat ? categoriaToProgetto(selectedCat) : null}
+    <div className="h-full min-h-screen w-full">
+      <DropDown
+        open={openDropDown}
+        position={dropDownPosition}
+        onClose={handleClose}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        selectedItem={selectedItem}
         isDark={isDark}
       />
+      <AddCategorie />
+      <CategorieTopBar />
+      <CategoriesArea />
     </div>
   );
 }
 
-export default CategoriesArea;
+export default Categories;

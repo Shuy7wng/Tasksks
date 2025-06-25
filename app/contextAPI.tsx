@@ -1,7 +1,5 @@
 "use client";
 
-import {
-  faDashboard,
 import { faDashboard, faBarsProgress, faLayerGroup } from "@fortawesome/free-solid-svg-icons";
 import { createContext, useContext, useState, ReactNode, useEffect, Dispatch, SetStateAction } from "react";
 
@@ -129,13 +127,13 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
 
   // Dropdown states
   const [taskOpen, setTaskOpen] = useState(false);
-  const [taskPosition, setTaskPosition] = useState<DropDownPosition>({ x:0, y:0 });
+  const [taskPosition, setTaskPosition] = useState<DropDownPosition>({ x: 0, y: 0 });
   const [taskSelected, setTaskSelected] = useState<Task | null>(null);
   const [projOpen, setProjOpen] = useState(false);
-  const [projPosition, setProjPosition] = useState<DropDownPosition>({ x:0, y:0 });
+  const [projPosition, setProjPosition] = useState<DropDownPosition>({ x: 0, y: 0 });
   const [projSelected, setProjSelected] = useState<Progetto | null>(null);
   const [catOpen, setCatOpen] = useState(false);
-  const [catPosition, setCatPosition] = useState<DropDownPosition>({ x:0, y:0 });
+  const [catPosition, setCatPosition] = useState<DropDownPosition>({ x: 0, y: 0 });
   const [catSelected, setCatSelected] = useState<Categoria | null>(null);
 
   // API methods
@@ -145,35 +143,35 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     setProgetti(data);
   }
   async function createProject(nome: string, categoriaIds: number[]) {
-    await fetch('/api/progetti', { method:'POST', headers:{ 'Content-Type':'application/json'}, body: JSON.stringify({ nome, categoriaIds }) });
+    await fetch('/api/progetti', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nome, categoriaIds }) });
     await fetchProjects();
     setRefreshProjects(r => !r);
   }
   async function editProject(proj: Progetto) {
-    await fetch('/api/progetti', { method:'PUT', headers:{ 'Content-Type':'application/json'}, body: JSON.stringify({ id: proj.id, nome: proj.nome, categoriaIds: proj.categorie.map(c=>c.id) }) });
+    await fetch('/api/progetti', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: proj.id, nome: proj.nome, categoriaIds: proj.categorie.map(c => c.id) }) });
     await fetchProjects();
   }
   async function deleteProject(projId: number) {
-    await fetch(`/api/progetti?id=${projId}`, { method:'DELETE' });
-    setProgetti(prev => prev.filter(p=>p.id!==projId));
+    await fetch(`/api/progetti?id=${projId}`, { method: 'DELETE' });
+    setProgetti(prev => prev.filter(p => p.id !== projId));
     setRefreshProjects(r => !r);
   }
 
-// Funzione fetchTasks aggiornata in tasksContext (esempio)
-async function fetchTasks(progettoId: number) {
-  const res = await fetch(`/api/task?progettoId=${progettoId}`);
-  if (!res.ok) throw new Error("Errore caricamento tasks");
-  const data = await res.json();
-  setTasks(data);  // tasks con campo fatto corretto
-}
+  // Funzione fetchTasks aggiornata in tasksContext (esempio)
+  async function fetchTasks(progettoId: number) {
+    const res = await fetch(`/api/task?progettoId=${progettoId}`);
+    if (!res.ok) throw new Error("Errore caricamento tasks");
+    const data = await res.json();
+    setTasks(data);  // tasks con campo fatto corretto
+  }
 
   async function createTask(nome: string, priorita: string, projId: number) {
-    await fetch('/api/task', { method:'POST', headers:{ 'Content-Type':'application/json'}, body: JSON.stringify({ nome, priorita, progettoId: projId }) });
+    await fetch('/api/task', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nome, priorita, progettoId: projId }) });
     await fetchTasks(projId);
   }
   async function deleteTask(taskId: number) {
-    await fetch(`/api/task?id=${taskId}`, { method:'DELETE' });
-    setTasks(prev => prev.filter(t=>t.id!==taskId));
+    await fetch(`/api/task?id=${taskId}`, { method: 'DELETE' });
+    setTasks(prev => prev.filter(t => t.id !== taskId));
   }
 
   // Pack dropdowns
