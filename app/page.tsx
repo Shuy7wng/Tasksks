@@ -4,7 +4,6 @@ import Sidebar from "./Components/Sidebar";
 import { useGlobalContextProvider } from "./contextAPI";
 import Projects from "./Components/ProjectScreen/Projects";
 import Categories from "./Components/CategoriesScreen/Categories";
-import 'dotenv/config';
 
 export default function Page() {
   const { isDark, sideBar, dashboardItems } = useGlobalContextProvider();
