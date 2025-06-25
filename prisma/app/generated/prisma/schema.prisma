@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./app/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Categoria {
+  id       Int        @id @default(autoincrement())
+  nome     String     @unique
+  progetti Progetto[] // relazione many-to-many implicita
+}
+
+model Progetto {
+  id        Int         @id @default(autoincrement())
+  nome      String
+  categorie Categoria[] // relazione many-to-many implicita
+  tasks     Task[]
+}
+
+model Task {
+  id         Int      @id @default(autoincrement())
+  nome       String
+  priorita   String
+  done       Boolean  @default(false)
+  progetto   Progetto @relation(fields: [progettoId], references: [id], onDelete: Cascade)
+  progettoId Int
+}
