@@ -115,14 +115,19 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
 
   // Reset all windows/dropdowns on menu change
   useEffect(() => {
-    setOpenNewProjectBox(false);
-    setOpenCreateProject(false);
-    setOpenTaskWindow(false);
-    setOpenNewCategorieBox(false);
-    setProjOpen(false);
-    setTaskOpen(false);
-    setCatOpen(false);
-    setOpenIconBox(false);
+    if (
+      openNewProjectBox ||
+      openIconBox ||
+      openCreatedProject ||
+      openTaskWindow ||
+      openNewCategorieBox
+    ) {
+      setOpenNewProjectBox(false);
+      setOpenIconBox(false);
+      setOpenCreateProject(false);
+      setOpenTaskWindow(false);
+      setOpenNewCategorieBox(false);
+    }
   }, [menuItems]);
 
   // Dropdown states
