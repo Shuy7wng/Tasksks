@@ -5,5 +5,5 @@
 
 */
 -- AlterTable
-ALTER TABLE `task` DROP COLUMN `fatto`,
+ALTER TABLE `task` DROP COLUMN `done`,
     ADD COLUMN `done` BOOLEAN NOT NULL DEFAULT false;
