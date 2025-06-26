@@ -29,7 +29,7 @@ function TaskWindow({ progettoId }: Props) {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/task", {
+      const res = await fetch("/api/task.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nome: nomeTask, priorita, progettoId }),

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClose } from "@fortawesome/free-solid-svg-icons";
 import { useGlobalContextProvider } from "@/app/contextAPI";
@@ -15,57 +15,64 @@ function AddCategorie() {
   const sidebarWidth = 280;
   const childHeight = 300;
 
-useEffect(() => {
-  const calculatePosition = () => {
-    const parentWidth = window.innerWidth;
-    const parentHeight = window.innerHeight;
+  const inputRef = useRef<HTMLInputElement>(null);
 
-    const newChildWidth = parentWidth < 600 ? 340 : 570;
-    setChildWidth(newChildWidth);
+  useEffect(() => {
+    const calculatePosition = () => {
+      const parentWidth = window.innerWidth;
+      const parentHeight = window.innerHeight;
 
-    const left = (parentWidth - newChildWidth) / 2;
-    const top = (parentHeight - childHeight) / 2;
+      const newChildWidth = parentWidth < 600 ? 340 : 570;
+      setChildWidth(newChildWidth);
 
-    setPosition({ left, top });
-  };
+      const left = (parentWidth - newChildWidth) / 2;
+      const top = (parentHeight - childHeight) / 2;
 
-  calculatePosition();
+      setPosition({ left, top });
+    };
 
-  window.addEventListener("resize", calculatePosition);
-  return () => window.removeEventListener("resize", calculatePosition);
-}, []);
+    calculatePosition();
 
-const aggiungiCategoria = async () => {
-  if (nomeCategoria.trim() === "") {
-    alert("Inserisci un nome per la categoria");
-    return;
-  }
+    window.addEventListener("resize", calculatePosition);
+    return () => window.removeEventListener("resize", calculatePosition);
+  }, []);
 
-  try {
-    const res = await fetch("/api/categorie", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nome: nomeCategoria.trim() }),
-    });
+  useEffect(() => {
+    if (openNewCategorieBox && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [openNewCategorieBox]);
 
-    if (!res.ok) {
-      const errorData = await res.json();
-      alert("Errore: " + errorData.error);
+  const aggiungiCategoria = async () => {
+    if (nomeCategoria.trim() === "") {
+      alert("Inserisci un nome per la categoria");
       return;
     }
 
-    const nuovaCategoria = await res.json();
+    try {
+      const res = await fetch("/api/categorie.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nome: nomeCategoria.trim() }),
+      });
 
-    // Aggiorna lista nel contesto (inserendo l'oggetto nuovo, non solo stringa)
-    categorie.setList((prev) => [...prev, nuovaCategoria]);
+      if (!res.ok) {
+        const errorData = await res.json();
+        alert("Errore: " + errorData.error);
+        return;
+      }
 
-    setNomeCategoria("");
-    setOpenNewCategorieBox(false);
-  } catch (error) {
-    alert("Errore nella chiamata API: " + (error instanceof Error ? error.message : String(error)));
-  }
-};
+      const nuovaCategoria = await res.json();
 
+      // Aggiorna lista nel contesto (inserendo l'oggetto nuovo, non solo stringa)
+      categorie.setList((prev) => [...prev, nuovaCategoria]);
+
+      setNomeCategoria("");
+      setOpenNewCategorieBox(false);
+    } catch (error) {
+      alert("Errore nella chiamata API: " + (error instanceof Error ? error.message : String(error)));
+    }
+  };
 
   if (!openNewCategorieBox) return null;
 
@@ -80,8 +87,10 @@ const aggiungiCategoria = async () => {
           height: "100vh",
           backgroundColor: isDark ? "rgba(14, 19, 36, 0.3)" : "rgba(0,0,0,0.15)",
           zIndex: 30,
-          pointerEvents: "none",
+          pointerEvents: "auto",
         }}
+        onClick={() => setOpenNewCategorieBox(false)}
+        aria-label="Chiudi modale cliccando fuori"
       />
       <div
         style={{
@@ -94,25 +103,37 @@ const aggiungiCategoria = async () => {
           ${isDark ? "bg-[#0e1324]" : "bg-white"}
           visible opacity-100
         `}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="titolo-nuova-categoria"
       >
         <div className="flex justify-between items-center">
-          <span className="font-semibold text-[20px] mt-1">Nuova categoria</span>
+          <span id="titolo-nuova-categoria" className="font-semibold text-[20px] mt-1">Nuova categoria</span>
           <FontAwesomeIcon
             onClick={() => setOpenNewCategorieBox(false)}
             className="opacity-30 cursor-pointer"
             icon={faClose}
+            role="button"
+            aria-label="Chiudi modale"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") setOpenNewCategorieBox(false);
+            }}
           />
         </div>
 
         <div className="flex flex-col gap-2 mt-10 px-3">
-          <span className="text-sm opacity-80">Nome categoria</span>
+          <label htmlFor="nome-categoria" className="text-sm opacity-80">Nome categoria</label>
           <input
+            id="nome-categoria"
+            ref={inputRef}
             className={`border w-full border-gray-200 outline-none p-3 rounded-md text-[12px] ${
               isDark ? "bg-[#161d3a]" : "bg-white"
             }`}
             placeholder="Dai un nome alla categoria..."
             value={nomeCategoria}
             onChange={(e) => setNomeCategoria(e.target.value)}
+            autoComplete="off"
           />
         </div>
 
@@ -120,6 +141,7 @@ const aggiungiCategoria = async () => {
           <button
             onClick={aggiungiCategoria}
             className="bg-gradient-to-tr from-[#2c67f2] to-[#62cff4] cursor-pointer w-full p-3 text-white rounded-md text-sm"
+            aria-label="Aggiungi categoria"
           >
             Aggiungi
           </button>

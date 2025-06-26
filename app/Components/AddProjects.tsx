@@ -27,7 +27,7 @@ function AddProjects() {
   useEffect(() => {
     async function fetchCategorie() {
       try {
-        const res = await fetch("/api/categorie");
+        const res = await fetch("/api/categorie.php");
         if (!res.ok) throw new Error("Errore caricamento categorie");
         const data = await res.json();
         setCategorie(data);
@@ -73,7 +73,7 @@ function AddProjects() {
         return;
       }
 
-      const res = await fetch("/api/progetti", {
+      const res = await fetch("/api/progetti.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -154,10 +154,11 @@ function AddProjects() {
               onChange={(e) => setNome(e.target.value)}
               className={`border w-full border-gray-200 outline-none p-3 rounded-md text-[12px] ${isDark ? "bg-[#161d3a]" : "bg-white"
                 }`}
+
               placeholder="Dai un nome al tuo progetto..."
             />
             <FontAwesomeIcon
-              className="bg-gradient-to-tr from-[#2c67f2] to-[#62cff4] cursor-pointer mt-[1px] p-3 rounded-md text-white"
+              className="bg-gradient-to-tr from-[#2c67f2] to-[#62cff4] cursor-pointer rounded-full p-3 w-[42px] h-[42px] text-white"
               icon={faPodcast}
               height={15}
               width={20}
@@ -166,11 +167,16 @@ function AddProjects() {
         </div>
 
         {/* Categoria */}
-        <div className="flex flex-col gap-2 mt-8 mx-3">
-          <MultipleSelectChip
-            selectedCategories={categorie}
-            onSelectionChange={handleCategorieChange}
-          />
+        <div className="flex flex-col gap-2 mt-8 px-3">
+          <span className="text-sm opacity-80">Categorie</span>
+          <div className="flex gap-4 justify-between items-center">
+            <div className={`w-full border border-gray-200 rounded-md ${isDark ? "bg-[#161d3a]" : "bg-white"}`}>
+              <MultipleSelectChip
+                selectedCategories={categorie}
+                onSelectionChange={handleCategorieChange}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Bottone */}

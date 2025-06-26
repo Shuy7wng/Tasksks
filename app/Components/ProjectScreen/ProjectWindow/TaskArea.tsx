@@ -3,15 +3,14 @@
 import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsis, faPlus, faSortDown } from "@fortawesome/free-solid-svg-icons";
-import Checkbox from '@mui/material/Checkbox';
+import Checkbox from "@mui/material/Checkbox";
 import DropDown from "../../DropDown";
 import { useGlobalContextProvider, Task } from "@/app/contextAPI";
-
 
 // --------------------- COMPONENTE PRINCIPALE ---------------------
 export default function TasksArea({ progettoId }: { progettoId: number }) {
   const { tasksContext, projectWindow, isDark, taskDropDown } = useGlobalContextProvider();
-  const { tasks, fetchTasks, setTasks } = tasksContext;
+  const { tasks, setTasks } = tasksContext;
   const { setOpenTaskWindow } = projectWindow;
   const {
     open: openTaskMenu,
@@ -28,8 +27,17 @@ export default function TasksArea({ progettoId }: { progettoId: number }) {
     let mounted = true;
     async function load() {
       setLoading(true);
-      await fetchTasks(progettoId);
-      if (mounted) setLoading(false);
+      try {
+        const res = await fetch(`/api/task.php?progettoId=${progettoId}`);
+        if (!res.ok) throw new Error("Errore nel caricamento dei task");
+        const data = await res.json();
+        if (mounted) setTasks(data);
+      } catch (err) {
+        console.error(err);
+        alert("Errore nel caricamento delle task");
+      } finally {
+        if (mounted) setLoading(false);
+      }
     }
     load();
     return () => {
@@ -45,7 +53,7 @@ export default function TasksArea({ progettoId }: { progettoId: number }) {
 
   async function handleDelete(task: Task) {
     try {
-      const res = await fetch(`/api/task?id=${task.id}`, { method: "DELETE" });
+      const res = await fetch(`/api/task.php?id=${task.id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Errore eliminazione task");
       setTasks(prev => prev.filter(t => t.id !== task.id));
     } catch (err) {
@@ -65,9 +73,9 @@ export default function TasksArea({ progettoId }: { progettoId: number }) {
           <button
             onClick={() => setOpenTaskWindow(true)}
             disabled={loading}
-            className="flex gap-1 text-[13px] p-2 px-3 rounded-md bg-gradient-to-tr from-[#2c67f2] to-[#62cff4] text-white shadow-sm hover:bg-[#1e4ed8] disabled:opacity-50"
+            className="flex items-center justify-center gap-2 text-[13px] h-9 px-4 rounded-md bg-gradient-to-tr from-[#2c67f2] to-[#62cff4] text-white shadow-sm hover:bg-[#1e4ed8] disabled:opacity-50"
           >
-            <FontAwesomeIcon icon={faPlus} width={13} height={13} />
+            <FontAwesomeIcon icon={faPlus} className="w-3 h-3" />
             <span className="font-light hidden md:inline">Aggiungi</span>
           </button>
         </div>
@@ -103,6 +111,7 @@ export default function TasksArea({ progettoId }: { progettoId: number }) {
   );
 }
 
+// --------------------- COMPONENTE SINGOLA TASK ---------------------
 function SingleTask({ task }: { task: Task }) {
   const { isDark, tasksContext, taskDropDown } = useGlobalContextProvider();
   const { setTasks } = tasksContext;
@@ -112,11 +121,9 @@ function SingleTask({ task }: { task: Task }) {
     setSelectedItem: setTaskSelectedItem,
   } = taskDropDown;
 
-  // Stato locale per checked, inizializzato da task.fatto
   const [checked, setChecked] = React.useState(task.done ?? false);
 
-  // Sincronizza stato locale se cambia task.fatto da esterno
-  React.useEffect(() => {
+  useEffect(() => {
     setChecked(task.done ?? false);
   }, [task.done]);
 
@@ -127,25 +134,22 @@ function SingleTask({ task }: { task: Task }) {
     setTaskMenuOpen(true);
   }
 
-   async function toggleDone(newChecked: boolean) {
-    setChecked(newChecked); // aggiorna subito UI locale
-
+  async function toggleDone(newChecked: boolean) {
+    setChecked(newChecked);
     setTasks(prev =>
       prev.map(t => (t.id === task.id ? { ...t, done: newChecked } : t))
     );
 
     try {
-      const res = await fetch(`/api/task`, {
+      const res = await fetch(`/api/task.php`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: task.id, fatto: newChecked }),
+        body: JSON.stringify({ id: task.id, done: newChecked }),
       });
       if (!res.ok) throw new Error("Errore aggiornamento task");
     } catch (err) {
       console.error(err);
       alert("Errore durante l'aggiornamento dello stato della task");
-
-      // revert UI e stato globale in caso di errore
       setChecked(!newChecked);
       setTasks(prev =>
         prev.map(t => (t.id === task.id ? { ...t, done: !newChecked } : t))
@@ -155,9 +159,8 @@ function SingleTask({ task }: { task: Task }) {
 
   return (
     <div
-      className={`py-5 rounded-md p-4 text-sm flex flex-col gap-6 relative shadow-sm ${
-        isDark ? "bg-[#161d3a]" : "bg-slate-100"
-      }`}
+      className={`py-5 rounded-md p-4 text-sm flex flex-col gap-6 relative shadow-sm ${isDark ? "bg-[#161d3a]" : "bg-slate-100"
+        }`}
     >
       <div
         onClick={handleOpenDropDown}

@@ -14,13 +14,16 @@ interface statisticsCard {
 }
 
 export default function Statistics() {
+
+  const { progetti, tasksContext, categorie, isDark } = useGlobalContextProvider();
+  const { tasks } = tasksContext;
+
   const statisticsCard: statisticsCard[] = [
-    { text: "Totale", numbers: 15, icon: faDiagramProject },
-    { text: "Completate", numbers: 30, icon: faListCheck },
-    { text: "Categorie", numbers: 3, icon: faLayerGroup },
+    { text: "Totale Progetti", numbers: progetti.length, icon: faDiagramProject },
+    { text: "Totale Tasks", numbers: tasks.length, icon: faListCheck },
+    { text: "Totale Categorie", numbers: categorie.list.length, icon: faLayerGroup },
   ];
 
-  const { isDark } = useGlobalContextProvider();
   const [currentWidth, setCurrentWidth] = useState<number | null>(null);
 
   useEffect(() => {
@@ -28,7 +31,7 @@ export default function Statistics() {
       setCurrentWidth(window.innerWidth);
     }
 
-    handleResize(); 
+    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);

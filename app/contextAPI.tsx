@@ -18,7 +18,6 @@ interface MenuItem { name: string; icon: any; isSelected: boolean; }
 interface DropDownState<T> { open: boolean; position: DropDownPosition; selectedItem: T | null; }
 
 interface GlobalContextType {
-  // Projects
   progetti: Progetto[];
   setProgetti: Dispatch<SetStateAction<Progetto[]>>;
   fetchProjects: () => Promise<void>;
@@ -26,26 +25,26 @@ interface GlobalContextType {
   editProject: (proj: Progetto) => Promise<void>;
   deleteProject: (projId: number) => Promise<void>;
 
-  // Tasks
-  tasksContext: { tasks: Task[]; setTasks: Dispatch<SetStateAction<Task[]>>; fetchTasks: (projId: number) => Promise<void>; createTask: (nome: string, priorita: string, projId: number) => Promise<void>; deleteTask: (taskId: number) => Promise<void>; };
+  tasksContext: {
+    tasks: Task[];
+    setTasks: Dispatch<SetStateAction<Task[]>>;
+    fetchTasks: (projId: number) => Promise<void>;
+    createTask: (nome: string, priorita: string, projId: number) => Promise<void>;
+    deleteTask: (taskId: number) => Promise<void>;
+  };
 
-  // Categories state
   categorie: { list: Categoria[]; setList: Dispatch<SetStateAction<Categoria[]>>; };
 
-  // Appearance
   isDark: boolean;
   setIsDark: (dark: boolean) => void;
 
-  // Layout
   sideBar: { openSideBar: boolean; setOpenSideBar: (open: boolean) => void; };
   dashboardItems: { menuItems: MenuItem[]; setMenuItems: Dispatch<SetStateAction<MenuItem[]>>; };
 
-  // Dropdowns
   taskDropDown: DropDownState<Task> & { setOpen: (open: boolean) => void; setPosition: (pos: DropDownPosition) => void; setSelectedItem: (t: Task | null) => void; };
   projectDropDown: DropDownState<Progetto> & { setOpen: (open: boolean) => void; setPosition: (pos: DropDownPosition) => void; setSelectedItem: (p: Progetto | null) => void; };
   categoryDropDown: DropDownState<Categoria> & { setOpen: (open: boolean) => void; setPosition: (pos: DropDownPosition) => void; setSelectedItem: (c: Categoria | null) => void; };
 
-  // Windows
   projectWindow: {
     openNewProjectBox: boolean;
     setOpenNewProjectBox: (open: boolean) => void;
@@ -69,33 +68,31 @@ interface GlobalContextType {
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 
 export function GlobalContextProvider({ children }: { children: ReactNode }) {
-  // Dark mode + apply class
   const [isDark, setIsDark] = useState(false);
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
   }, [isDark]);
 
-  // Sidebar
   const [openSideBar, setOpenSideBar] = useState(false);
-
-  // Dashboard menu
   const [menuItems, setMenuItems] = useState<MenuItem[]>([
     { name: "Home", icon: faDashboard, isSelected: true },
     { name: "Progetti", icon: faBarsProgress, isSelected: false },
     { name: "Categorie", icon: faLayerGroup, isSelected: false },
   ]);
 
-  // Data states
   const [progetti, setProgetti] = useState<Progetto[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [categorieList, setCategorieList] = useState<Categoria[]>([]);
 
-  // Load categories once
+  // Carica categorie da PHP
   useEffect(() => {
     async function loadCategorie() {
       try {
-        const res = await fetch("/api/categorie");
-        if (res.ok) setCategorieList(await res.json());
+        const res = await fetch("/api/categorie.php");
+        if (res.ok) {
+          const data = await res.json();
+          setCategorieList(data);
+        }
       } catch (err) {
         console.error("Errore caricando categorie", err);
       }
@@ -103,7 +100,6 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     loadCategorie();
   }, []);
 
-  // ProjectWindow states
   const [openNewProjectBox, setOpenNewProjectBox] = useState(false);
   const [openCreatedProject, setOpenCreateProject] = useState(false);
   const [openTaskWindow, setOpenTaskWindow] = useState(false);
@@ -113,7 +109,6 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
   const [editingProject, setEditingProject] = useState<Progetto | null>(null);
   const [selectedProject, setSelectedProject] = useState<Progetto | null>(null);
 
-  // Reset all windows/dropdowns on menu change
   useEffect(() => {
     if (
       openNewProjectBox ||
@@ -130,7 +125,10 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     }
   }, [menuItems]);
 
-  // Dropdown states
+  useEffect(() => {
+  fetchProjects().catch((err) => console.error("Errore iniziale fetch progetti:", err));
+}, []);
+
   const [taskOpen, setTaskOpen] = useState(false);
   const [taskPosition, setTaskPosition] = useState<DropDownPosition>({ x: 0, y: 0 });
   const [taskSelected, setTaskSelected] = useState<Task | null>(null);
@@ -141,64 +139,71 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
   const [catPosition, setCatPosition] = useState<DropDownPosition>({ x: 0, y: 0 });
   const [catSelected, setCatSelected] = useState<Categoria | null>(null);
 
-  // API methods
   async function fetchProjects() {
-    const res = await fetch('/api/progetti');
+    const res = await fetch('/api/progetti.php');
+    if (!res.ok) throw new Error("Errore caricando progetti");
     const data: Progetto[] = await res.json();
     setProgetti(data);
   }
   async function createProject(nome: string, categoriaIds: number[]) {
-    await fetch('/api/progetti', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nome, categoriaIds }) });
+    await fetch('/api/progetti.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nome, categoriaIds }),
+    });
     await fetchProjects();
     setRefreshProjects(r => !r);
   }
   async function editProject(proj: Progetto) {
-    await fetch('/api/progetti', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: proj.id, nome: proj.nome, categoriaIds: proj.categorie.map(c => c.id) }) });
+    await fetch('/api/progetti.php', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: proj.id, nome: proj.nome, categoriaIds: proj.categorie.map(c => c.id) }),
+    });
     await fetchProjects();
   }
   async function deleteProject(projId: number) {
-    await fetch(`/api/progetti?id=${projId}`, { method: 'DELETE' });
+    await fetch(`/api/progetti.php?id=${projId}`, { method: 'DELETE' });
     setProgetti(prev => prev.filter(p => p.id !== projId));
     setRefreshProjects(r => !r);
   }
 
-  // Funzione fetchTasks aggiornata in tasksContext (esempio)
   async function fetchTasks(progettoId: number) {
-    const res = await fetch(`/api/task?progettoId=${progettoId}`);
+    const res = await fetch(`/api/task.php?progettoId=${progettoId}`);
     if (!res.ok) throw new Error("Errore caricamento tasks");
     const data = await res.json();
-    setTasks(data);  // tasks con campo fatto corretto
+    setTasks(data);
   }
 
   async function createTask(nome: string, priorita: string, projId: number) {
-    await fetch('/api/task', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nome, priorita, progettoId: projId }) });
+    await fetch('/api/task.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nome, priorita, progettoId: projId }),
+    });
     await fetchTasks(projId);
   }
   async function deleteTask(taskId: number) {
-    await fetch(`/api/task?id=${taskId}`, { method: 'DELETE' });
+    await fetch(`/api/task.php?id=${taskId}`, { method: 'DELETE' });
     setTasks(prev => prev.filter(t => t.id !== taskId));
   }
 
-  // Pack dropdowns
   const taskDropDown = { open: taskOpen, position: taskPosition, selectedItem: taskSelected, setOpen: setTaskOpen, setPosition: setTaskPosition, setSelectedItem: setTaskSelected };
   const projectDropDown = { open: projOpen, position: projPosition, selectedItem: projSelected, setOpen: setProjOpen, setPosition: setProjPosition, setSelectedItem: setProjSelected };
   const categoryDropDown = { open: catOpen, position: catPosition, selectedItem: catSelected, setOpen: setCatOpen, setPosition: setCatPosition, setSelectedItem: setCatSelected };
 
   return (
     <GlobalContext.Provider value={{
-      // data
       progetti, setProgetti, fetchProjects, createProject, editProject, deleteProject,
       tasksContext: { tasks, setTasks, fetchTasks, createTask, deleteTask },
       categorie: { list: categorieList, setList: setCategorieList },
 
-      // appearance & layout
       isDark, setIsDark,
       sideBar: { openSideBar, setOpenSideBar },
       dashboardItems: { menuItems, setMenuItems },
       projectWindow: { openNewProjectBox, setOpenNewProjectBox, openCreatedProject, setOpenCreateProject, openTaskWindow, setOpenTaskWindow, openNewCategorieBox, setOpenNewCategorieBox, refreshProjects, setRefreshProjects, editingProject, setEditingProject, selectedProject, setSelectedProject },
       iconBox: { openIconBox, setOpenIconBox },
 
-      // dropdowns
       taskDropDown, projectDropDown, categoryDropDown
     }}>
       {children}

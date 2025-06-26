@@ -34,15 +34,13 @@ export default function ProjectsArea() {
     async function fetchProjects() {
       setLoading(true);
       try {
-        const res = await fetch("/api/progetti");
+        const res = await fetch("/api/progetti.php");
         const data = await res.json();
         const arr = Array.isArray(data) ? data : data?.progetti || [];
         setProjects(
           (arr as Progetto[]).map(p => ({
             ...p,
-            categorie: Array.isArray(p.categorie)
-              ? (p.categorie as Categoria[])
-              : [],
+            categorie: Array.isArray(p.categorie) ? (p.categorie as Categoria[]) : [],
           }))
         );
       } catch {
@@ -54,7 +52,6 @@ export default function ProjectsArea() {
     fetchProjects();
   }, [refreshProjects]);
 
-  // Definisce numero colonne responsive
   const cols = windowWidth < 588 ? 1 : windowWidth < 814 ? 2 : 3;
 
   function handleEdit(proj: Progetto) {
@@ -66,7 +63,7 @@ export default function ProjectsArea() {
 
   async function handleDelete(proj: Progetto) {
     try {
-      const res = await fetch(`/api/progetti?id=${proj.id}`, { method: "DELETE" });
+      const res = await fetch(`/api/progetti.php?id=${proj.id}`, { method: "DELETE" });
       if (!res.ok) {
         let errBody: any;
         try {
@@ -75,7 +72,7 @@ export default function ProjectsArea() {
           const text = await res.text();
           errBody = { message: text || "Nessun dettaglio fornito" };
         }
-        console.error("Errore server eliminar progetto:", res.status, res.statusText, errBody);
+        console.error("Errore server eliminazione progetto:", res.status, res.statusText, errBody);
         alert(`Errore eliminazione progetto (${res.status}): ${errBody.error || errBody.message || res.statusText}`);
         return;
       }
@@ -90,7 +87,7 @@ export default function ProjectsArea() {
   return (
     <div className={`${isDark ? "bg-[#161d3a]" : "bg-slate-50"} p-8`}>
       <div
-        className={`${isDark ? "bg-[#0e1324]" : "bg-white"} grid gap-4 p-6 rounded-md py-8 shadow-2xl"`}
+        className={`${isDark ? "bg-[#0e1324]" : "bg-white"} grid gap-4 p-6 rounded-md py-8 shadow-2xl`}
         style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
       >
         {loading ? (
@@ -103,7 +100,6 @@ export default function ProjectsArea() {
           ))
         )}
 
-        {/* Unica istanza di DropDown fuori dalla mappa */}
         <DropDown<Progetto>
           open={openProjMenu}
           onClose={() => setProjMenuOpen(false)}
@@ -118,9 +114,17 @@ export default function ProjectsArea() {
   );
 }
 
-function ProjectCard({ project, onEdit, onDelete }: { project: Progetto; onEdit: (p: Progetto) => void; onDelete: (p: Progetto) => void; }) {
+function ProjectCard({
+  project,
+  onEdit,
+  onDelete
+}: {
+  project: Progetto;
+  onEdit: (p: Progetto) => void;
+  onDelete: (p: Progetto) => void;
+}) {
   const { isDark, projectWindow, projectDropDown } = useGlobalContextProvider();
-  const { setOpenCreateProject, setSelectedProject, selectedProject } = projectWindow;
+  const { setOpenCreateProject, setSelectedProject } = projectWindow;
   const { setOpen: setProjMenuOpen, setPosition: setProjMenuPos, setSelectedItem: setProjSelectedItem } = projectDropDown;
 
   const { tasks } = useGlobalContextProvider().tasksContext;
@@ -128,7 +132,6 @@ function ProjectCard({ project, onEdit, onDelete }: { project: Progetto; onEdit:
   const doneCount = projectTasks.filter(t => t.done).length;
   const totalCount = projectTasks.length;
   const percent = totalCount > 0 ? (doneCount / totalCount) * 100 : 0;
-
 
   function openMenu(e: React.MouseEvent<HTMLDivElement>) {
     e.stopPropagation();
@@ -144,6 +147,7 @@ function ProjectCard({ project, onEdit, onDelete }: { project: Progetto; onEdit:
 
   return (
     <div className={`${isDark ? "bg-[#161d3a]" : "bg-slate-100"} py-5 rounded-md p-4 text-sm flex flex-col gap-6 relative shadow-sm`}
+
     >
       <div
         onClick={openMenu}
@@ -179,7 +183,7 @@ function ProjectCard({ project, onEdit, onDelete }: { project: Progetto; onEdit:
         {(project.categorie ?? []).length > 0 ? (
           (project.categorie ?? []).map((cat: Categoria) => (
             <span key={cat.id} className="bg-gradient-to-tr from-[#2c67f2] to-[#62cff4] p-1 rounded-md text-white px-3">
-              {cat.nome}
+             {cat.nome || "⚠️ nome mancante"}
             </span>
           ))
         ) : (
