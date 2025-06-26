@@ -73,12 +73,20 @@ function ProjectCard({
   project: Progetto;
   tasks: Task[];
 }) {
-  const { isDark } = useGlobalContextProvider();
 
   const doneCount = tasks.filter(t => t.done).length;
   const totalCount = tasks.length;
   const percent = totalCount > 0 ? (doneCount / totalCount) * 100 : 0;
+  const { isDark, projectWindow, projectDropDown } = useGlobalContextProvider();
+  const { setOpenCreateProject, setSelectedProject } = projectWindow;
+  const { setOpen: setProjMenuOpen, setPosition: setProjMenuPos, setSelectedItem: setProjSelectedItem } = projectDropDown;
 
+    function openMenu(e: React.MouseEvent<HTMLDivElement>) {
+    e.stopPropagation();
+    setProjSelectedItem(project);
+    setProjMenuPos({ x: e.clientX, y: e.clientY });
+    setProjMenuOpen(true);
+  }
   const progressColor = percent === 100
     ? "bg-green-500"
     : percent >= 50
@@ -87,8 +95,18 @@ function ProjectCard({
         ? "bg-orange-400"
         : "bg-gray-400";
 
+          function handleOpenProjectWindow() {
+    setSelectedProject(project);
+    setOpenCreateProject(true);
+  }
   return (
     <div className={`${isDark ? "bg-[#161d3a]" : "bg-slate-100"} py-5 rounded-md p-4 text-sm flex flex-col gap-6 relative shadow-sm`}>
+            <div
+        onClick={openMenu}
+        className="absolute right-3 top-3 cursor-pointer p-1 rounded-full h-7 w-7 hover:bg-gray-200 flex items-center justify-center"
+      >
+        <FontAwesomeIcon icon={faEllipsis} className="text-gray-500" />
+      </div>
       <div className="flex gap-2 items-center">
         <FontAwesomeIcon
           icon={faProjectDiagram}
@@ -97,7 +115,7 @@ function ProjectCard({
         <span title={project.nome}>{project.nome}</span>
       </div>
 
-      <div className={`${isDark ? "text-white" : "text-black"} mt-4`}>
+      <div onClick={handleOpenProjectWindow} className={`${isDark ? "text-white" : "text-black"} mt-4`}>
         <div className="flex justify-between mb-1 text-sm">
           <span>Task completati</span>
           <span>{doneCount}/{totalCount}</span>
