@@ -163,7 +163,6 @@ function AddProjects() {
         </div>
 
         <div className="flex flex-col gap-2 mt-8 px-3">
-          <span className="text-sm opacity-80">Categorie</span>
           <div className="flex gap-4 justify-between items-center">
             <div className={`w-full border border-gray-200 rounded-md ${isDark ? "bg-[#161d3a]" : "bg-white"}`}>
               <MultipleSelectChip

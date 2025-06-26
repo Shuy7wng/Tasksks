@@ -21,11 +21,14 @@ if($method==='GET'){
     SELECT 
       p.id,
       p.nome,
-      GROUP_CONCAT(c.id) AS categoriaIds,
-      GROUP_CONCAT(c.nome) AS categorie
+      GROUP_CONCAT(DISTINCT c.id) AS categoriaIds,
+      GROUP_CONCAT(DISTINCT c.nome) AS categorie,
+      GROUP_CONCAT(DISTINCT t.id) AS taskIds,
+      GROUP_CONCAT(DISTINCT t.nome) AS tasks
     FROM `Progetto` p
     LEFT JOIN `_CategoriaToProgetto` cp ON p.id = cp.B
     LEFT JOIN `Categoria` c ON c.id = cp.A
+    LEFT JOIN `Task` t ON t.progettoId = p.id
     GROUP BY p.id
   ";
   $res = $conn->query($sql);
@@ -36,23 +39,34 @@ if($method==='GET'){
   }
   $out=[];
   while($r=$res->fetch_assoc()){
-$ids = $r['categoriaIds'] ? explode(',', $r['categoriaIds']) : [];
-$names = $r['categorie'] ? explode(',', $r['categorie']) : [];
-$categorie = [];
+    
+    $ids = $r['categoriaIds'] ? explode(',', $r['categoriaIds']) : [];
+    $names = $r['categorie'] ? explode(',', $r['categorie']) : [];
+    $categorie = [];
+    foreach ($ids as $index => $id) {
+      $nome = $names[$index] ?? '';
+      $categorie[] = ['id' => (int)$id, 'nome' => $nome];
+    }
+    $r['categorie'] = $categorie;
+    unset($r['categoriaIds']);
 
-foreach ($ids as $index => $id) {
-  $nome = $names[$index] ?? '';
-  $categorie[] = ['id' => (int)$id, 'nome' => $nome];
-}
+    $taskIds = $r['taskIds'] ? explode(',', $r['taskIds']) : [];
+    $taskNames = $r['tasks'] ? explode(',', $r['tasks']) : [];
+    $tasks = [];
+    foreach ($taskIds as $index => $id) {
+      $nome = $taskNames[$index] ?? '';
+      $tasks[] = ['id' => (int)$id, 'nome' => $nome];
+    }
+    $r['tasks'] = $tasks;
+    unset($r['taskIds']);
+    unset($r['tasks']);
 
-$r['categorie'] = $categorie;
-unset($r['categoriaIds']); 
-
-    $out[]=$r;
+    $out[] = $r;
   }
   echo json_encode($out);
   exit;
 }
+
 
 if($method==='POST'){
   $d=json_decode(file_get_contents("php://input"),true);

@@ -19,9 +19,9 @@ export default function Statistics() {
   const { tasks } = tasksContext;
 
   const statisticsCard: statisticsCard[] = [
-    { text: "Totale Progetti", numbers: progetti.length, icon: faDiagramProject },
-    { text: "Totale Tasks", numbers: tasks.length, icon: faListCheck },
-    { text: "Totale Categorie", numbers: categorie.list.length, icon: faLayerGroup },
+    { text: "Tot Progetti", numbers: progetti.length, icon: faDiagramProject },
+    { text: "Tot Tasks", numbers: tasks.length, icon: faListCheck },
+    { text: "Categorie", numbers: categorie.list.length, icon: faLayerGroup },
   ];
 
   const [currentWidth, setCurrentWidth] = useState<number | null>(null);

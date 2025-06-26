@@ -21,6 +21,25 @@ function CategoriesArea() {
     typeof window !== "undefined" ? window.innerWidth : 0
   );
 
+  // Ricarica categorie ogni volta che si entra nella pagina
+  useEffect(() => {
+    async function reloadCategories() {
+      try {
+        const res = await fetch("/api/categorie.php");
+        if (res.ok) {
+          const data = await res.json();
+          categorie.setList(data);
+        } else {
+          console.error("Errore caricando categorie");
+        }
+      } catch (err) {
+        console.error("Errore fetch categorie:", err);
+      }
+    }
+
+    reloadCategories();
+  }, []);
+
   useEffect(() => {
     function onResize() {
       setWidth(window.innerWidth);
@@ -52,40 +71,39 @@ function CategoriesArea() {
   return (
     <div className={`${isDark ? "bg-[#161d3a]" : "bg-slate-50"} p-8`}>
       <div
-        className={`grid gap-4 p-6 rounded-md py-8 shadow-2xl ${isDark ? "bg-[#0e1324]" : "bg-white"
-          }`}
+        className={`grid gap-4 p-6 rounded-md py-8 shadow-2xl ${isDark ? "bg-[#0e1324]" : "bg-white"}`}
       >
-        {categorie.list.length === 0 && (
+        {categorie.list.length === 0 ? (
           <p className={`${isDark ? "text-white" : "text-gray-700"}`}>
             Nessuna categoria disponibile
           </p>
-        )}
+        ) : (
+          categorie.list.map(cat => {
+            const count = progetti.filter((p: Progetto) =>
+              p.categorie.some(c => Number(c.id) === Number(cat.id))
+            ).length;
 
-        {categorie.list.map(cat => {
-          const count = progetti.filter((p: Progetto) =>
-            p.categorie.some(c => c.id === cat.id)
-          ).length;
-
-          return (
-            <div
-              key={cat.id}
-              className={`${isDark ? "bg-[#161d3a]" : "bg-slate-100"} shadow-sm p-4 flex justify-between items-center rounded-md`}
-            >
-              <div>
-                <span className="font-semibold">{cat.nome}</span>
-                <div className={`text-[12px] ${isDark ? "text-gray-300" : "text-gray-600"}`}>
-                  {count > 0 ? `${count} Progetto${count > 1 ? "i" : ""}` : "Nessun progetto trovato"}
+            return (
+              <div
+                key={cat.id}
+                className={`${isDark ? "bg-[#161d3a]" : "bg-slate-100"} shadow-sm p-4 flex justify-between items-center rounded-md`}
+              >
+                <div>
+                  <span className="font-semibold">{cat.nome}</span>
+                  <div className={`text-[12px] ${isDark ? "text-gray-300" : "text-gray-600"}`}>
+                    {count > 0 ? `${count} Progett${count > 1 ? "i" : "o"}` : "Nessun progetto"}
+                  </div>
+                </div>
+                <div
+                  onClick={e => handleOpen(e, cat)}
+                  className="p-1 hover:bg-gray-200 rounded-full cursor-pointer"
+                >
+                  <FontAwesomeIcon icon={faEllipsis} className="text-gray-500" />
                 </div>
               </div>
-              <div
-                onClick={e => handleOpen(e, cat)}
-                className="p-1 hover:bg-gray-200 rounded-full cursor-pointer"
-              >
-                <FontAwesomeIcon icon={faEllipsis} className="text-gray-500" />
-              </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
 
       <DropDown<Categoria>
