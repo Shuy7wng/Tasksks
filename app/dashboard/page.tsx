@@ -6,7 +6,7 @@ import Dashboard from "../Components/TopBar/Dashboard";
 import { useGlobalContextProvider } from '../contextAPI';
 
 export default function Page() {
-    const { isDark, setIsDark } = useGlobalContextProvider();
+    const { isDark } = useGlobalContextProvider();
 
     return (
         <div

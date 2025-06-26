@@ -14,8 +14,6 @@ export default function ProjectsArea() {
     position: projMenuPos,
     selectedItem: selectedProjItem,
     setOpen: setProjMenuOpen,
-    setPosition: setProjMenuPos,
-    setSelectedItem: setProjSelectedItem,
   } = projectDropDown;
 
   const [windowWidth, setWindowWidth] = useState<number>(
@@ -54,13 +52,6 @@ export default function ProjectsArea() {
 
   const cols = windowWidth < 588 ? 1 : windowWidth < 814 ? 2 : 3;
 
-  function handleEdit(proj: Progetto) {
-    projectWindow.setEditingProject(proj);
-    projectWindow.setOpenCreateProject(true);
-    setProjMenuOpen(false);
-    setProjSelectedItem(proj);
-  }
-
   async function handleDelete(proj: Progetto) {
     try {
       const res = await fetch(`/api/progetti.php?id=${proj.id}`, { method: "DELETE" });
@@ -96,7 +87,7 @@ export default function ProjectsArea() {
           <p className={`${isDark ? "text-white" : "text-gray-700"}`}>Nessun progetto disponibile</p>
         ) : (
           projects.map(proj => (
-            <ProjectCard key={proj.id} project={proj} onEdit={handleEdit} onDelete={handleDelete} />
+            <ProjectCard key={proj.id} project={proj} onDelete={handleDelete} />
           ))
         )}
 
@@ -105,7 +96,6 @@ export default function ProjectsArea() {
           onClose={() => setProjMenuOpen(false)}
           position={projMenuPos}
           selectedItem={selectedProjItem}
-          onEdit={handleEdit}
           onDelete={handleDelete}
           isDark={isDark}
         />
@@ -116,11 +106,8 @@ export default function ProjectsArea() {
 
 function ProjectCard({
   project,
-  onEdit,
-  onDelete
 }: {
   project: Progetto;
-  onEdit: (p: Progetto) => void;
   onDelete: (p: Progetto) => void;
 }) {
   const { isDark, projectWindow, projectDropDown } = useGlobalContextProvider();

@@ -15,7 +15,6 @@ function AddProjects() {
   const {
     openNewProjectBox,
     setOpenNewProjectBox,
-    refreshProjects,
     setRefreshProjects,
   } = projectWindow;
 
@@ -107,7 +106,6 @@ function AddProjects() {
 
   return (
     <>
-      {/* Overlay */}
       <div
         style={{
           position: "fixed",
@@ -123,7 +121,6 @@ function AddProjects() {
         }}
       />
 
-      {/* Popup */}
       <div
         style={{
           left: `${position.left}px`,
@@ -135,7 +132,7 @@ function AddProjects() {
           ${openNewProjectBox ? "visible opacity-100" : "invisible opacity-0"}
           ${isDark ? "bg-[#0e1324]" : "bg-white"}`}
       >
-        {/* Header */}
+
         <div className="flex justify-between items-center">
           <span className="font-semibold text-[20px] mt-1">Nuovo progetto</span>
           <FontAwesomeIcon
@@ -145,7 +142,6 @@ function AddProjects() {
           />
         </div>
 
-        {/* Nome progetto */}
         <div className="flex flex-col gap-2 mt-10 px-3">
           <span className="text-sm opacity-80">Nome progetto</span>
           <div className="flex gap-4 justify-between items-center">
@@ -166,7 +162,6 @@ function AddProjects() {
           </div>
         </div>
 
-        {/* Categoria */}
         <div className="flex flex-col gap-2 mt-8 px-3">
           <span className="text-sm opacity-80">Categorie</span>
           <div className="flex gap-4 justify-between items-center">
@@ -179,7 +174,6 @@ function AddProjects() {
           </div>
         </div>
 
-        {/* Bottone */}
         <div className="text-center mx-2 mt-10">
           <button
             onClick={handleAggiungiProgetto}

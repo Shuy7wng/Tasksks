@@ -10,21 +10,12 @@ export default function TopBar() {
   const [openSearchBar, setOpenSearchBar] = useState(false);
   const {openSideBar, setOpenSideBar} = sideBar;
 
-  function handleClickedIcon(
-    event: React.MouseEvent<SVGSVGElement, MouseEvent>)
-    {
-      event.stopPropagation();
-      setOpenSideBar(true);
-    }
-  
-
   return (
     <div className={`p-8 pt-12 flex items-center justify-between ${isDark
       ? "bg-[#161d3a]" : "bg-white"
       }`}>
 
       <div className="flex gap-7 items-center">
-        {/* bars icon */}
         <div className="flex cursor-pointer md:hidden">
           <FontAwesomeIcon 
           onClick= {()=> setOpenSideBar(!openSideBar)}

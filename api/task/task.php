@@ -1,6 +1,4 @@
 <?php
-// ————————————————————————————————————————————————
-// Debug e header CORS / JSON
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -9,7 +7,6 @@ header('Content-Type: application/json');
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
 header("Access-Control-Allow-Headers: Content-Type");
-// ————————————————————————————————————————————————
 
 $host = "localhost";
 $user = "tasksks_uid_db";
@@ -30,7 +27,6 @@ function parseId($v) {
 }
 
 if ($method === 'GET') {
-  // GET /api/task.php?progettoId=#
   parse_str(parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY), $q);
   $progettoId = parseId($q['progettoId'] ?? null);
   if (!$progettoId) {
@@ -65,7 +61,6 @@ if ($method === 'GET') {
 }
 
 if ($method === 'POST') {
-  // POST { nome, priorita, progettoId, [done] }
   $data = json_decode(file_get_contents("php://input"), true);
   $nome       = trim($data['nome'] ?? '');
   $priorita   = trim($data['priorita'] ?? '');
@@ -105,7 +100,6 @@ if ($method === 'POST') {
 }
 
 if ($method === 'PUT') {
-  // PUT { id, done }
   $data = json_decode(file_get_contents("php://input"), true);
   $id   = parseId($data['id'] ?? null);
   $done = isset($data['done']) ? (int)(bool)$data['done'] : null;
@@ -135,7 +129,6 @@ if ($method === 'PUT') {
 }
 
 if ($method === 'DELETE') {
-  // DELETE ?id=#
   parse_str(parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY), $q);
   $id = parseId($q['id'] ?? null);
 
@@ -144,8 +137,6 @@ if ($method === 'DELETE') {
     echo json_encode(["error" => "ID task non valido"]);
     exit;
   }
-
-  // Verifica esistenza
   $check = $conn->prepare("SELECT id FROM `Task` WHERE id = ?");
   $check->bind_param("i", $id);
   $check->execute();

@@ -125,8 +125,10 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     }
   }, [menuItems]);
 
-  useEffect(() => {
-  fetchProjects().catch((err) => console.error("Errore iniziale fetch progetti:", err));
+useEffect(() => {
+  fetchProjects()
+    .then(() => fetchAllTasks())
+    .catch((err) => console.error("Errore iniziale fetch:", err));
 }, []);
 
   const [taskOpen, setTaskOpen] = useState(false);
@@ -174,6 +176,24 @@ export function GlobalContextProvider({ children }: { children: ReactNode }) {
     const data = await res.json();
     setTasks(data);
   }
+  async function fetchAllTasks() {
+  try {
+    const allTasks: Task[] = [];
+
+    for (const progetto of progetti) {
+      const res = await fetch(`/api/task.php?progettoId=${progetto.id}`);
+      if (res.ok) {
+        const data: Task[] = await res.json();
+        allTasks.push(...data);
+      }
+    }
+
+    setTasks(allTasks);
+  } catch (err) {
+    console.error("Errore nel caricamento di tutti i task:", err);
+  }
+}
+
 
   async function createTask(nome: string, priorita: string, projId: number) {
     await fetch('/api/task.php', {

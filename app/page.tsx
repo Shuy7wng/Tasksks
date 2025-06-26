@@ -8,7 +8,6 @@ import Categories from "./Components/CategoriesScreen/Categories";
 export default function Page() {
   const { isDark, sideBar, dashboardItems } = useGlobalContextProvider();
 
-  // Check di sicurezza
   if (!dashboardItems || !dashboardItems.menuItems) {
     return <div className="p-10 text-center">Loading dashboard...</div>;
   }

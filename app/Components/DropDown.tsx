@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencil, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
 interface DropDownPosition {
   x: number;
@@ -11,7 +11,6 @@ interface DropDownProps<T> {
   open: boolean;
   position: DropDownPosition;
   onClose: () => void;
-  onEdit: (item: T) => void;
   onDelete: (item: T) => void;
   selectedItem: T | null;
   isDark: boolean;
@@ -21,19 +20,12 @@ function DropDown<T>({
   open,
   position,
   onClose,
-  onEdit,
   onDelete,
   selectedItem,
   isDark,
 }: DropDownProps<T>) {
   const [hoveredItem, setHoveredItem] = useState<number | null>(null);
   const dropDownRef = useRef<HTMLDivElement>(null);
-
-  function handleEdit() {
-    if (selectedItem) {
-      onEdit(selectedItem);
-    }
-  }
 
   function handleDelete() {
     if (selectedItem) {
@@ -42,7 +34,6 @@ function DropDown<T>({
   }
 
   const dropMenuItem = [
-    { name: "Modifica", icon: faPencil, action: handleEdit },
     { name: "Elimina", icon: faTrash, action: handleDelete },
   ];
 

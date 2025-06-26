@@ -29,12 +29,9 @@ export default function RootLayout({
       >
         <GlobalContextProvider>
           <div className="flex">
-            {/* Sidebar visibile solo da md in su */}
             <div className="hidden md:flex">
               <Sidebar />
             </div>
-
-            {/* Main si adatta a presenza/assenza della sidebar */}
             <main className="w-full h-screen overflow-y-auto md:ml-[280px]">
               {children}
             </main>

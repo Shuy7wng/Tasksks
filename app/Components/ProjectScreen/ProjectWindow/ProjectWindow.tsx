@@ -41,7 +41,6 @@ function ProjectWindow() {
             transition-all duration-300 ease-in-out rounded-lg flex flex-col`}
       >
         <TaskWindow progettoId={Number(selectedProject.id)} />
-        {/* Header con info progetto */}
         <div className="relative p-6 bg-gradient-to-tr from-[#2c67f2] to-[#62cff4] flex items-center justify-center px-4 rounded-t-lg">
           <span className="font-semibold text-3xl text-white">{selectedProject.nome}</span>
           <FontAwesomeIcon

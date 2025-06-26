@@ -46,7 +46,7 @@ foreach ($ids as $index => $id) {
 }
 
 $r['categorie'] = $categorie;
-unset($r['categoriaIds']); // se non ti serve più
+unset($r['categoriaIds']); 
 
     $out[]=$r;
   }

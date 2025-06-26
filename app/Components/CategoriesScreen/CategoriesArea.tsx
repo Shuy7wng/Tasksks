@@ -49,17 +49,11 @@ function CategoriesArea() {
     }
   }
 
-  function handleEdit(cat: Categoria) {
-    setCatMenuOpen(false);
-    // apri modale modifica con cat
-  }
-
   return (
     <div className={`${isDark ? "bg-[#161d3a]" : "bg-slate-50"} p-8`}>
       <div
-        className={`grid gap-4 p-6 rounded-md py-8 shadow-2xl ${
-          isDark ? "bg-[#0e1324]" : "bg-white"
-        }`}
+        className={`grid gap-4 p-6 rounded-md py-8 shadow-2xl ${isDark ? "bg-[#0e1324]" : "bg-white"
+          }`}
       >
         {categorie.list.length === 0 && (
           <p className={`${isDark ? "text-white" : "text-gray-700"}`}>
@@ -68,7 +62,6 @@ function CategoriesArea() {
         )}
 
         {categorie.list.map(cat => {
-          // conta progetti associati
           const count = progetti.filter((p: Progetto) =>
             p.categorie.some(c => c.id === cat.id)
           ).length;
@@ -81,7 +74,7 @@ function CategoriesArea() {
               <div>
                 <span className="font-semibold">{cat.nome}</span>
                 <div className={`text-[12px] ${isDark ? "text-gray-300" : "text-gray-600"}`}>
-                  {count} {count === 1 ? "progetto" : "progetti"}
+                  {count > 0 ? `${count} Progetto${count > 1 ? "i" : ""}` : "Nessun progetto trovato"}
                 </div>
               </div>
               <div
@@ -100,7 +93,6 @@ function CategoriesArea() {
         position={catMenuPos}
         onClose={() => setCatMenuOpen(false)}
         selectedItem={selectedCat}
-        onEdit={handleEdit}
         onDelete={handleDelete}
         isDark={isDark}
       />

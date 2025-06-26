@@ -13,15 +13,9 @@ function Categories() {
     setOpen: setOpenDropDown,
     position: dropDownPosition,
     selectedItem,
-    setSelectedItem,
   } = categoryDropDown;
 
   function handleClose() {
-    setOpenDropDown(false);
-  }
-
-  function handleEdit(category: any) {
-    console.log("Modifica categoria:", category);
     setOpenDropDown(false);
   }
 
@@ -36,7 +30,6 @@ function Categories() {
         open={openDropDown}
         position={dropDownPosition}
         onClose={handleClose}
-        onEdit={handleEdit}
         onDelete={handleDelete}
         selectedItem={selectedItem}
         isDark={isDark}

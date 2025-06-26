@@ -7,7 +7,6 @@ import Checkbox from "@mui/material/Checkbox";
 import DropDown from "../../DropDown";
 import { useGlobalContextProvider, Task } from "@/app/contextAPI";
 
-// --------------------- COMPONENTE PRINCIPALE ---------------------
 export default function TasksArea({ progettoId }: { progettoId: number }) {
   const { tasksContext, projectWindow, isDark, taskDropDown } = useGlobalContextProvider();
   const { tasks, setTasks } = tasksContext;
@@ -17,8 +16,6 @@ export default function TasksArea({ progettoId }: { progettoId: number }) {
     position: taskMenuPos,
     selectedItem: selectedTaskItem,
     setOpen: setTaskMenuOpen,
-    setPosition: setTaskMenuPos,
-    setSelectedItem: setTaskSelectedItem,
   } = taskDropDown;
 
   const [loading, setLoading] = useState(false);
@@ -45,12 +42,6 @@ export default function TasksArea({ progettoId }: { progettoId: number }) {
     };
   }, [progettoId]);
 
-  function handleEdit(task: Task) {
-    setTaskMenuOpen(false);
-    setOpenTaskWindow(true);
-    setTaskSelectedItem(task);
-  }
-
   async function handleDelete(task: Task) {
     try {
       const res = await fetch(`/api/task.php?id=${task.id}`, { method: "DELETE" });
@@ -66,7 +57,6 @@ export default function TasksArea({ progettoId }: { progettoId: number }) {
 
   return (
     <div className="rounded-xl p-9 px-1 md:px-9 h-full m-11 mt-3">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex gap-3 items-center">
           <h2 className="font-bold text-2xl">Tutte le task</h2>
@@ -86,7 +76,6 @@ export default function TasksArea({ progettoId }: { progettoId: number }) {
         </div>
       </div>
 
-      {/* Lista task */}
       <div className="p-3 mt-11 flex flex-col gap-6 min-h-[100px]">
         {loading ? (
           <p className={isDark ? "text-white" : "text-gray-700"}>Caricamento...</p>
@@ -97,21 +86,17 @@ export default function TasksArea({ progettoId }: { progettoId: number }) {
         )}
       </div>
 
-      {/* Unico DropDown */}
       <DropDown<Task>
         open={openTaskMenu}
         onClose={() => setTaskMenuOpen(false)}
         position={taskMenuPos}
         selectedItem={selectedTaskItem}
-        onEdit={handleEdit}
         onDelete={handleDelete}
         isDark={isDark}
       />
     </div>
   );
 }
-
-// --------------------- COMPONENTE SINGOLA TASK ---------------------
 function SingleTask({ task }: { task: Task }) {
   const { isDark, tasksContext, taskDropDown } = useGlobalContextProvider();
   const { setTasks } = tasksContext;

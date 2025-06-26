@@ -11,7 +11,6 @@ function Sidebar() {
   const { openSideBar, setOpenSideBar } = sideBar;
   const sideBarRef = useRef<HTMLDivElement>(null);
 
-  // Stato per larghezza reale sidebar (dinamica)
   const [sidebarWidth, setSidebarWidth] = useState(280);
 
   useEffect(() => {
@@ -53,7 +52,6 @@ function Sidebar() {
 
   return (
     <>
-      {/* Overlay per mobile (oscura il resto) */}
       {openSideBar && (
         <div
           style={{
@@ -79,7 +77,6 @@ function Sidebar() {
         montserrat z-40 shadow-xl p-6 pt-12 flex-col gap-32 transition-colors 
         ${isDark ? "bg-[#0e1324]" : "bg-white"}`}
       >
-        {/* Logo */}
         <div className="flex gap-2 items-center justify-center mb-6">
           <img
             src={isDark ? "/gattino_bianco.png" : "/gattino_nero.png"}
@@ -90,7 +87,6 @@ function Sidebar() {
           <span className="text-2xl font-bold">Tasksks</span>
         </div>
 
-        {/* Menu */}
         <nav className="flex flex-col gap-4 flex-grow">
           {menuItems.map((item, index) => (
             <button
@@ -122,7 +118,6 @@ function Sidebar() {
           ))}
         </nav>
 
-        {/* Toggle in fondo */}
         <div className="mt-auto flex justify-center pt-6">
           <DarkMode />
         </div>

@@ -7,7 +7,7 @@ import { useGlobalContextProvider } from "@/app/contextAPI";
 
 function CategoriesTopBar() {
   const { isDark, sideBar, projectWindow, categorie } = useGlobalContextProvider();
-  const { openNewCategorieBox, setOpenNewCategorieBox } = projectWindow;
+  const { setOpenNewCategorieBox } = projectWindow;
   const { openSideBar, setOpenSideBar } = sideBar;
 
   const numeroCategorie = categorie.list.length;
@@ -24,7 +24,6 @@ function CategoriesTopBar() {
           />
         </div>
 
-        {/* Titolo e sottotitolo */}
         <div className="flex flex-col">
           <span className="font-bold text-2xl">Categorie</span>
           <p className="text-[12px]">
@@ -32,7 +31,6 @@ function CategoriesTopBar() {
           </p>
         </div>
 
-        {/* Bottone Aggiungi */}
         <button
           onClick={() => setOpenNewCategorieBox(true)}
           className="text-sm flex cursor-pointer gap-1 items-center rounded-md p-2 px-4 text-white shadow-2xl bg-gradient-to-tr from-[#2c67f2] to-[#62cff4]">

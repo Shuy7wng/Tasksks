@@ -5,7 +5,7 @@ import { useGlobalContextProvider } from "@/app/contextAPI";
 import CubePlusIcon from "@/app/assets/svgs/svgIcons"
 
 export default function LatestProjects() {
-    const { isDark, setIsDark } = useGlobalContextProvider();
+    const { isDark } = useGlobalContextProvider();
     const projects: any = [];
     return (
         <div
@@ -31,7 +31,7 @@ export default function LatestProjects() {
 }
 
 function ProjectCard() {
-    const { isDark, setIsDark } = useGlobalContextProvider();
+    const { isDark } = useGlobalContextProvider();
     return (
         <div
             className={`${isDark ? "bg-[#0e1324]" : "bg-slate-100"
@@ -47,17 +47,12 @@ function ProjectCard() {
 
                 <span className="">Progetto 1</span>
             </div>
-            {/* PROGRESS */}
             <div className="flex flex-col gap-2">
                 <div
-                >
-                    className={`${isDark ? "text-white" : "text-gray-500"
-
-                        } flex justify-between items-center text-[12px]`}
+                    className={`${isDark ? "text-white" : "text-gray-500"} flex justify-between items-center text-[12px]`}>
                     <div className="flex gap-2 items-center ">
                         <FontAwesomeIcon height={12} width={12} icon={faBarsProgress} />
                         <span>Progresso</span>
-
                     </div>
                     <span>9/12</span>
                 </div>
@@ -70,7 +65,7 @@ function ProjectCard() {
 }
 
 function EmptyProjectsPlaceholder() {
-    const { isDark, setIsDark } = useGlobalContextProvider();
+    const { isDark } = useGlobalContextProvider();
     return (
         <div className="p-1 gap-5 flex flex-col justify-center items-center text-center">
             <CubePlusIcon width={120} height={120} color="#d4d4d4" />
