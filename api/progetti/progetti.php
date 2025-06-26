@@ -59,7 +59,6 @@ if($method==='GET'){
     }
     $r['tasks'] = $tasks;
     unset($r['taskIds']);
-    unset($r['tasks']);
 
     $out[] = $r;
   }
