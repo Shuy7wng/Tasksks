@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Progetto, Categoria, Task, useGlobalContextProvider } from "@/app/contextAPI";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faProjectDiagram, faEllipsis } from "@fortawesome/free-solid-svg-icons";
@@ -8,7 +8,7 @@ import DropDown from "../DropDown";
 
 export default function ProjectsArea() {
   const { isDark, projectWindow, projectDropDown, tasksContext } = useGlobalContextProvider();
-  const { refreshProjects } = projectWindow;
+  const { refreshProjects, openCreatedProject, setRefreshProjects } = projectWindow;
   const { tasks } = tasksContext;
 
   const {
@@ -23,6 +23,18 @@ export default function ProjectsArea() {
   );
   const [projects, setProjects] = useState<Progetto[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // 📌 Ref per memorizzare lo stato precedente della finestra task
+  const prevOpenRef = useRef<boolean>(openCreatedProject);
+
+  // 📌 Quando la finestra viene chiusa, ricarica i progetti
+  useEffect(() => {
+    if (prevOpenRef.current && !openCreatedProject) {
+      // La finestra è stata chiusa
+      setRefreshProjects(v => !v);
+    }
+    prevOpenRef.current = openCreatedProject;
+  }, [openCreatedProject, setRefreshProjects]);
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -105,6 +117,7 @@ export default function ProjectsArea() {
     </div>
   );
 }
+
 
 function ProjectCard({
   project,
